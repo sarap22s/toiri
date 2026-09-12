@@ -1,24 +1,92 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ChatPanel } from "@/components/ChatPanel";
+import { PreviewPanel } from "@/components/PreviewPanel";
+import { Header } from "@/components/Header";
+import { PricingModal } from "@/components/PricingModal";
+import { store } from "@/lib/store";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Toiri — AI app builder for Bangladesh" },
+      {
+        name: "description",
+        content:
+          "Toiri (তৈরি) builds React apps from a bilingual Bangla and English chat, with a live preview beside you.",
+      },
+      { property: "og:title", content: "Toiri — AI app builder for Bangladesh" },
+      {
+        property: "og:description",
+        content:
+          "Describe an app in Bangla or English and watch Toiri build it live in the preview.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const [leftWidth, setLeftWidth] = useState(42);
+  const dragging = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    store.hydrate();
+  }, []);
+
+  const onMouseDown = useCallback(() => {
+    dragging.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }, []);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!dragging.current || !containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const pct = ((e.clientX - rect.left) / rect.width) * 100;
+      setLeftWidth(Math.min(70, Math.max(28, pct)));
+    };
+    const onUp = () => {
+      dragging.current = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="relative h-screen w-screen overflow-hidden">
+      <div className="app-bg" />
+      <PricingModal />
+      <div className="relative z-10 flex h-full flex-col">
+        <Header />
+        <div ref={containerRef} className="flex flex-1 gap-0 overflow-hidden px-3 pb-3">
+          <div style={{ width: `${leftWidth}%` }} className="h-full min-w-[320px]">
+            <ChatPanel />
+          </div>
+
+          <div
+            className="resizer my-1"
+            onMouseDown={onMouseDown}
+            role="separator"
+            aria-label="Resize panels"
+          />
+
+          <div
+            style={{ width: `${100 - leftWidth}%` }}
+            className="h-full min-w-[360px]"
+          >
+            <PreviewPanel />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
