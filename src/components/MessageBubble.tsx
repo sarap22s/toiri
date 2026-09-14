@@ -9,8 +9,9 @@ export function MessageBubble({
   fileLabel,
 }: {
   message: ChatMessage;
-  fileLabel?: string;
+  fileLabel?: string | undefined;
 }) {
+
   const isUser = message.role === "user";
   const lang = useStore((s) => s.lang);
 
