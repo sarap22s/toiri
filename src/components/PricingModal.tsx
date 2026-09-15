@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Coins, CreditCard, Smartphone, X } from "lucide-react";
+import { Coins, CreditCard, Loader2, Smartphone, X } from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { CREDIT_PACKS, creditsLeftText, t } from "@/lib/i18n";
 
@@ -7,8 +8,29 @@ export function PricingModal() {
   const open = useStore((s) => s.showPricing);
   const credits = useStore((s) => s.credits);
   const lang = useStore((s) => s.lang);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const close = () => store.setShowPricing(false);
+
+  const buy = async (packId: string) => {
+    setError(null);
+    setBusy(packId);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ deviceId: store.get().deviceId, packId }),
+      });
+      const data = (await res.json()) as { gatewayUrl?: string; error?: string };
+      if (!data.gatewayUrl) throw new Error(data.error || "Could not start the payment.");
+      window.location.href = data.gatewayUrl;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not start the payment.");
+      setBusy(null);
+    }
+  };
+
 
   return (
     <AnimatePresence>
