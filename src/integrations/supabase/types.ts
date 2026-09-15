@@ -14,13 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      credit_balances: {
+        Row: {
+          created_at: string
+          credits: number
+          device_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits?: number
+          device_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          device_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_orders: {
+        Row: {
+          amount_bdt: number
+          bank_tran_id: string | null
+          card_type: string | null
+          created_at: string
+          credited_at: string | null
+          credits: number
+          device_id: string
+          id: string
+          pack_id: string
+          status: string
+          tran_id: string
+          updated_at: string
+          val_id: string | null
+        }
+        Insert: {
+          amount_bdt: number
+          bank_tran_id?: string | null
+          card_type?: string | null
+          created_at?: string
+          credited_at?: string | null
+          credits: number
+          device_id: string
+          id?: string
+          pack_id: string
+          status?: string
+          tran_id: string
+          updated_at?: string
+          val_id?: string | null
+        }
+        Update: {
+          amount_bdt?: number
+          bank_tran_id?: string | null
+          card_type?: string | null
+          created_at?: string
+          credited_at?: string | null
+          credits?: number
+          device_id?: string
+          id?: string
+          pack_id?: string
+          status?: string
+          tran_id?: string
+          updated_at?: string
+          val_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_credits: {
+        Args: { _amount: number; _device_id: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
