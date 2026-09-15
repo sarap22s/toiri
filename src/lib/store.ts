@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from "react";
 import type { Lang } from "./i18n";
+import { DEMO_APP, DEMO_INTRO } from "./demo-app";
+
 
 export type ChatMessage = {
   id: string;
@@ -108,9 +110,21 @@ export const store = {
   writeFile(path: string, content: string) {
     set({ files: { ...state.files, [path]: content }, activeFile: path });
   },
+  loadDemo() {
+    const intro = DEMO_INTRO[state.lang];
+    set({
+      files: { ...state.files, "/App.js": DEMO_APP },
+      activeFile: "/App.js",
+      messages: [
+        ...state.messages,
+        { id: uid(), role: "assistant" as const, content: intro },
+      ],
+    });
+  },
   reset() {
     set({ messages: [], files: { "/App.js": STARTER_APP }, activeFile: "/App.js" });
   },
+
 };
 
 export function useStore<T>(selector: (s: State) => T): T {
