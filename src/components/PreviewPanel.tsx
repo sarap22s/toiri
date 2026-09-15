@@ -107,6 +107,18 @@ export function PreviewPanel() {
           <IconBtn onClick={download} title={t(lang, "download")}>
             <Download size={13} />
           </IconBtn>
+          <button
+            onClick={publish}
+            disabled={publishing}
+            className="ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime transition hover:bg-lime/25 disabled:opacity-60"
+          >
+            {publishing ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : (
+              <Share2 size={13} />
+            )}
+            {publishedSlug ? t(lang, "republish") : t(lang, "publish")}
+          </button>
           <div className="ml-1 flex items-center gap-1 rounded-lg bg-ink-800/70 p-1">
             <ToggleBtn
               active={view === "preview"}
