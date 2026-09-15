@@ -4,7 +4,8 @@ import { ChatPanel } from "@/components/ChatPanel";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { Header } from "@/components/Header";
 import { PricingModal } from "@/components/PricingModal";
-import { store } from "@/lib/store";
+import { store, useStore } from "@/lib/store";
+import { MessageSquare, Monitor } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
