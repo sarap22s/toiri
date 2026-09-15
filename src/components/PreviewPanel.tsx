@@ -1,6 +1,17 @@
 import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
 import { ClientOnly } from "@tanstack/react-router";
-import { Check, Code2, Copy, Download, Eye, History, Monitor } from "lucide-react";
+import {
+  Check,
+  Code2,
+  Copy,
+  Download,
+  Eye,
+  ExternalLink,
+  History,
+  Loader2,
+  Monitor,
+  Share2,
+} from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 
