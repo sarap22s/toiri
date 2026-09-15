@@ -28,12 +28,30 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [leftWidth, setLeftWidth] = useState(42);
+  const [payment, setPayment] = useState<string | null>(null);
   const dragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     store.hydrate();
+    const url = new URL(window.location.href);
+    const result = url.searchParams.get("payment");
+    if (result) {
+      setPayment(result);
+      url.searchParams.delete("payment");
+      window.history.replaceState({}, "", url.pathname + url.search);
+      // Give the payment callback a moment, then pull the authoritative balance.
+      void store.refreshCredits();
+      const retry = setTimeout(() => void store.refreshCredits(), 2500);
+      const hide = setTimeout(() => setPayment(null), 8000);
+      return () => {
+        clearTimeout(retry);
+        clearTimeout(hide);
+      };
+    }
+    return;
   }, []);
+
 
   const onMouseDown = useCallback(() => {
     dragging.current = true;
