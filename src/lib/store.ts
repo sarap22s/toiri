@@ -2,11 +2,17 @@ import { useSyncExternalStore } from "react";
 import type { Lang } from "./i18n";
 import { DEMO_APP, DEMO_INTRO } from "./demo-app";
 
-
 export type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
+};
+
+export type Version = {
+  id: string;
+  label: string;
+  code: string;
+  ts: number;
 };
 
 export type State = {
@@ -14,11 +20,11 @@ export type State = {
   isLoading: boolean;
   files: Record<string, string>;
   activeFile: string;
+  versions: Version[];
   credits: number | null;
   showPricing: boolean;
   lang: Lang;
   deviceId: string;
-
 };
 
 const STARTER_APP = `export default function App() {
@@ -47,12 +53,14 @@ const STARTER_APP = `export default function App() {
 const FREE_CREDITS = 10;
 const DEVICE_KEY = "toiri.device";
 const LANG_KEY = "toiri.lang";
+const PROJECT_KEY = "toiri.project";
 
 let state: State = {
   messages: [],
   isLoading: false,
   files: { "/App.js": STARTER_APP },
   activeFile: "/App.js",
+  versions: [],
   credits: null,
   showPricing: false,
   lang: "en",
@@ -64,9 +72,47 @@ const listeners = new Set<() => void>();
 function set(patch: Partial<State>) {
   state = { ...state, ...patch };
   listeners.forEach((l) => l());
+  persist();
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10);
+
+function persist() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      PROJECT_KEY,
+      JSON.stringify({
+        messages: state.messages.slice(-60),
+        files: state.files,
+        activeFile: state.activeFile,
+        versions: state.versions.slice(-20),
+      }),
+    );
+  } catch {
+    /* storage full or blocked — keep working in memory */
+  }
+}
+
+function restore() {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem(PROJECT_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw) as Partial<State>;
+    if (saved.files && typeof saved.files === "object") {
+      state = {
+        ...state,
+        files: saved.files as Record<string, string>,
+        activeFile: saved.activeFile ?? "/App.js",
+        messages: Array.isArray(saved.messages) ? saved.messages : [],
+        versions: Array.isArray(saved.versions) ? saved.versions : [],
+      };
+    }
+  } catch {
+    /* ignore corrupt saves */
+  }
+}
 
 function readDeviceId(): string {
   const existing = window.localStorage.getItem(DEVICE_KEY);
@@ -90,6 +136,7 @@ export const store = {
     const rawLang = window.localStorage.getItem(LANG_KEY);
     const lang: Lang = rawLang === "bn" ? "bn" : "en";
     const deviceId = readDeviceId();
+    restore();
     set({ lang, deviceId });
     void store.refreshCredits();
   },
@@ -126,14 +173,33 @@ export const store = {
   setShowPricing(showPricing: boolean) {
     set({ showPricing });
   },
-  writeFile(path: string, content: string) {
-    set({ files: { ...state.files, [path]: content }, activeFile: path });
+  writeFile(path: string, content: string, label?: string) {
+    const version: Version = {
+      id: uid(),
+      label: label?.slice(0, 70) || path,
+      code: content,
+      ts: Date.now(),
+    };
+    set({
+      files: { ...state.files, [path]: content },
+      activeFile: path,
+      versions: [...state.versions, version].slice(-20),
+    });
+  },
+  restoreVersion(id: string) {
+    const version = state.versions.find((v) => v.id === id);
+    if (!version) return;
+    set({ files: { ...state.files, "/App.js": version.code }, activeFile: "/App.js" });
   },
   loadDemo() {
     const intro = DEMO_INTRO[state.lang];
     set({
       files: { ...state.files, "/App.js": DEMO_APP },
       activeFile: "/App.js",
+      versions: [
+        ...state.versions,
+        { id: uid(), label: "Sample bakery app", code: DEMO_APP, ts: Date.now() },
+      ].slice(-20),
       messages: [
         ...state.messages,
         { id: uid(), role: "assistant" as const, content: intro },
@@ -141,9 +207,13 @@ export const store = {
     });
   },
   reset() {
-    set({ messages: [], files: { "/App.js": STARTER_APP }, activeFile: "/App.js" });
+    set({
+      messages: [],
+      files: { "/App.js": STARTER_APP },
+      activeFile: "/App.js",
+      versions: [],
+    });
   },
-
 };
 
 export function useStore<T>(selector: (s: State) => T): T {

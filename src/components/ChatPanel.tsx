@@ -71,7 +71,7 @@ export function ChatPanel() {
       if (Array.isArray(data.fileWrites) && data.fileWrites.length) {
         let label = "";
         for (const fw of data.fileWrites) {
-          store.writeFile(fw.path, fw.content);
+          store.writeFile(fw.path, fw.content, prompt);
           label = fw.path;
         }
         const msgs = store.get().messages;
