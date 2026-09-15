@@ -23,6 +23,13 @@ export const STRINGS: Record<Lang, Dict> = {
     genericError: "Something went wrong. Please try again.",
     comingSoon: "Payments coming soon",
     trySample: "Load a sample app (Bangla bakery chatbot)",
+    copyCode: "Copy code",
+    copied: "Copied",
+    download: "Download",
+    history: "History",
+    restore: "Restore",
+    noVersions: "No versions yet — build something first.",
+    versionsTitle: "Version history",
 
     comingSoonBody:
       "Paid packs via bKash, Nagad, Rocket and cards are on the way. For now every browser gets free credits.",
