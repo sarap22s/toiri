@@ -34,7 +34,7 @@ export function Header() {
         </button>
         <button
           onClick={() => store.setShowPricing(true)}
-          className="flex items-center gap-1.5 rounded-full border border-lime/20 bg-lime/5 px-3 py-1.5 text-[11px] font-semibold text-lime transition hover:bg-lime/10"
+          className="flex items-center gap-1.5 rounded-full border border-lime/20 bg-lime/5 px-3 py-1.5 text-[11px] font-semibold text-lime whitespace-nowrap transition hover:bg-lime/10"
         >
           <Coins size={12} />
           {credits === null ? "—" : credits} {t(lang, "creditsLabel")}
