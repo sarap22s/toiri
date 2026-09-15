@@ -14,6 +14,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
 import { Route as ApiCreditsRouteImport } from './routes/api/credits'
 import { Route as ApiPublishRouteImport } from './routes/api/publish'
+import { Route as AppSlugRouteImport } from './routes/app.$slug'
 import { Route as ApiPublicSslcommerzCancelRouteImport } from './routes/api/public/sslcommerz/cancel'
 import { Route as ApiPublicSslcommerzFailRouteImport } from './routes/api/public/sslcommerz/fail'
 import { Route as ApiPublicSslcommerzIpnRouteImport } from './routes/api/public/sslcommerz/ipn'
@@ -42,6 +43,11 @@ const ApiCreditsRoute = ApiCreditsRouteImport.update({
 const ApiPublishRoute = ApiPublishRouteImport.update({
   id: '/api/publish',
   path: '/api/publish',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppSlugRoute = AppSlugRouteImport.update({
+  id: '/app/$slug',
+  path: '/app/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicSslcommerzCancelRoute =
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/credits': typeof ApiCreditsRoute
   '/api/publish': typeof ApiPublishRoute
+  '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
   '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
   '/api/public/sslcommerz/ipn': typeof ApiPublicSslcommerzIpnRoute
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/credits': typeof ApiCreditsRoute
   '/api/publish': typeof ApiPublishRoute
+  '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
   '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
   '/api/public/sslcommerz/ipn': typeof ApiPublicSslcommerzIpnRoute
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/credits': typeof ApiCreditsRoute
   '/api/publish': typeof ApiPublishRoute
+  '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
   '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
   '/api/public/sslcommerz/ipn': typeof ApiPublicSslcommerzIpnRoute
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/api/checkout'
     | '/api/credits'
     | '/api/publish'
+    | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
     | '/api/public/sslcommerz/fail'
     | '/api/public/sslcommerz/ipn'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/api/checkout'
     | '/api/credits'
     | '/api/publish'
+    | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
     | '/api/public/sslcommerz/fail'
     | '/api/public/sslcommerz/ipn'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/api/checkout'
     | '/api/credits'
     | '/api/publish'
+    | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
     | '/api/public/sslcommerz/fail'
     | '/api/public/sslcommerz/ipn'
@@ -143,6 +155,7 @@ export interface RootRouteChildren {
   ApiCheckoutRoute: typeof ApiCheckoutRoute
   ApiCreditsRoute: typeof ApiCreditsRoute
   ApiPublishRoute: typeof ApiPublishRoute
+  AppSlugRoute: typeof AppSlugRoute
   ApiPublicSslcommerzCancelRoute: typeof ApiPublicSslcommerzCancelRoute
   ApiPublicSslcommerzFailRoute: typeof ApiPublicSslcommerzFailRoute
   ApiPublicSslcommerzIpnRoute: typeof ApiPublicSslcommerzIpnRoute
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublishRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/$slug': {
+      id: '/app/$slug'
+      path: '/app/$slug'
+      fullPath: '/app/$slug'
+      preLoaderRoute: typeof AppSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/sslcommerz/cancel': {
       id: '/api/public/sslcommerz/cancel'
       path: '/api/public/sslcommerz/cancel'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCheckoutRoute: ApiCheckoutRoute,
   ApiCreditsRoute: ApiCreditsRoute,
   ApiPublishRoute: ApiPublishRoute,
+  AppSlugRoute: AppSlugRoute,
   ApiPublicSslcommerzCancelRoute: ApiPublicSslcommerzCancelRoute,
   ApiPublicSslcommerzFailRoute: ApiPublicSslcommerzFailRoute,
   ApiPublicSslcommerzIpnRoute: ApiPublicSslcommerzIpnRoute,
