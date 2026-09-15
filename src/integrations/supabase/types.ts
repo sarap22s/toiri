@@ -83,6 +83,33 @@ export type Database = {
         }
         Relationships: []
       }
+      published_apps: {
+        Row: {
+          code: string
+          created_at: string
+          device_id: string
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          device_id: string
+          slug: string
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          device_id?: string
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
