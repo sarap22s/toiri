@@ -25,6 +25,7 @@ export type State = {
   showPricing: boolean;
   lang: Lang;
   deviceId: string;
+  publishedSlug: string | null;
 };
 
 const STARTER_APP = `export default function App() {
@@ -65,6 +66,7 @@ let state: State = {
   showPricing: false,
   lang: "en",
   deviceId: "",
+  publishedSlug: null,
 };
 
 const listeners = new Set<() => void>();
@@ -87,6 +89,7 @@ function persist() {
         files: state.files,
         activeFile: state.activeFile,
         versions: state.versions.slice(-20),
+        publishedSlug: state.publishedSlug,
       }),
     );
   } catch {
@@ -107,6 +110,8 @@ function restore() {
         activeFile: saved.activeFile ?? "/App.js",
         messages: Array.isArray(saved.messages) ? saved.messages : [],
         versions: Array.isArray(saved.versions) ? saved.versions : [],
+        publishedSlug:
+          typeof saved.publishedSlug === "string" ? saved.publishedSlug : null,
       };
     }
   } catch {
@@ -167,6 +172,31 @@ export const store = {
     set({ messages: [...state.messages, message] });
     return message;
   },
+  updateMessage(id: string, content: string) {
+    set({
+      messages: state.messages.map((m) => (m.id === id ? { ...m, content } : m)),
+    });
+  },
+  setPublishedSlug(publishedSlug: string | null) {
+    set({ publishedSlug });
+  },
+  async publish(title: string) {
+    const code = state.files["/App.js"] ?? "";
+    const res = await fetch("/api/publish", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        deviceId: state.deviceId,
+        code,
+        title,
+        slug: state.publishedSlug,
+      }),
+    });
+    const data = (await res.json()) as { slug?: string; error?: string };
+    if (!res.ok || !data.slug) throw new Error(data.error || "Could not publish.");
+    set({ publishedSlug: data.slug });
+    return data.slug;
+  },
   setLoading(isLoading: boolean) {
     set({ isLoading });
   },
@@ -212,6 +242,7 @@ export const store = {
       files: { "/App.js": STARTER_APP },
       activeFile: "/App.js",
       versions: [],
+      publishedSlug: null,
     });
   },
 };

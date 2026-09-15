@@ -8,6 +8,13 @@
       "when": 1789431076074,
       "tag": "0000_credits_and_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789472491178,
+      "tag": "0001_published_apps",
+      "breakpoints": true
     }
   ]
 }

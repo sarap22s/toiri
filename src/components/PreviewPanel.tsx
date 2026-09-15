@@ -1,6 +1,17 @@
 import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
 import { ClientOnly } from "@tanstack/react-router";
-import { Check, Code2, Copy, Download, Eye, History, Monitor } from "lucide-react";
+import {
+  Check,
+  Code2,
+  Copy,
+  Download,
+  Eye,
+  ExternalLink,
+  History,
+  Loader2,
+  Monitor,
+  Share2,
+} from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 
@@ -14,8 +25,40 @@ export function PreviewPanel() {
   const [view, setView] = useState<"preview" | "code">("preview");
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const publishedSlug = useStore((s) => s.publishedSlug);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [showShare, setShowShare] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const code = files["/App.js"] ?? "";
+  const shareUrl =
+    publishedSlug && typeof window !== "undefined"
+      ? `${window.location.origin}/app/${publishedSlug}`
+      : "";
+
+  const publish = async () => {
+    setPublishing(true);
+    setPublishError(null);
+    setShowShare(true);
+    try {
+      await store.publish(t(lang, "publishedTitle"));
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : t(lang, "genericError"));
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1600);
+    } catch {
+      /* clipboard blocked */
+    }
+  };
 
   const sandpackFiles = useMemo(() => {
     const out: Record<string, { code: string; active?: boolean }> = {};
@@ -64,6 +107,18 @@ export function PreviewPanel() {
           <IconBtn onClick={download} title={t(lang, "download")}>
             <Download size={13} />
           </IconBtn>
+          <button
+            onClick={publish}
+            disabled={publishing}
+            className="ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime transition hover:bg-lime/25 disabled:opacity-60"
+          >
+            {publishing ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : (
+              <Share2 size={13} />
+            )}
+            {publishedSlug ? t(lang, "republish") : t(lang, "publish")}
+          </button>
           <div className="ml-1 flex items-center gap-1 rounded-lg bg-ink-800/70 p-1">
             <ToggleBtn
               active={view === "preview"}
@@ -116,6 +171,57 @@ export function PreviewPanel() {
               ))
             )}
           </div>
+        </div>
+      )}
+
+      {showShare && (
+        <div className="absolute right-3 top-14 z-30 w-80 overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-xl backdrop-blur">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11.5px] font-semibold text-foreground/60">
+              {t(lang, "shareTitle")}
+            </span>
+            <button
+              onClick={() => setShowShare(false)}
+              className="text-[11px] text-foreground/40 hover:text-foreground/70"
+            >
+              {t(lang, "close")}
+            </button>
+          </div>
+          {publishing ? (
+            <p className="mt-3 text-[12px] text-foreground/50">{t(lang, "publishing")}</p>
+          ) : publishError ? (
+            <p className="mt-3 text-[12px] text-red-300">{publishError}</p>
+          ) : shareUrl ? (
+            <>
+              <p className="mt-2 text-[11.5px] text-foreground/45">
+                {t(lang, "shareHint")}
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  readOnly
+                  value={shareUrl}
+                  onFocus={(e) => e.currentTarget.select()}
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-ink-800/70 px-2.5 py-1.5 text-[12px] text-foreground/80"
+                />
+                <IconBtn onClick={copyLink} title={t(lang, "copyLink")}>
+                  {linkCopied ? (
+                    <Check size={13} className="text-lime" />
+                  ) : (
+                    <Copy size={13} />
+                  )}
+                </IconBtn>
+                <a
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={t(lang, "openLink")}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/45 transition hover:bg-foreground/5 hover:text-foreground/80"
+                >
+                  <ExternalLink size={13} />
+                </a>
+              </div>
+            </>
+          ) : null}
         </div>
       )}
 

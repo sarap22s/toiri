@@ -47,36 +47,79 @@ export function ChatPanel() {
         body: JSON.stringify({ messages: history, deviceId: store.get().deviceId }),
       });
 
-      const data = (await res.json()) as {
-        text?: string;
-        error?: string;
-        credits?: number;
-        fileWrites?: { path: string; content: string }[];
-      };
-
-      if (typeof data.credits === "number") store.setCredits(data.credits);
-
-      if (data.error) {
+      // Non-streaming responses are always errors (bad request, out of credits).
+      if (!res.ok || !res.body) {
+        const data = (await res.json().catch(() => ({}))) as {
+          error?: string;
+          credits?: number;
+        };
+        if (typeof data.credits === "number") store.setCredits(data.credits);
         if (res.status === 402) store.setShowPricing(true);
-        throw new Error(data.error);
+        throw new Error(data.error || t(lang, "genericError"));
       }
 
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let text = "";
+      let bubbleId: string | null = null;
+      let fileWrites: { path: string; content: string }[] = [];
+      let streamError: string | null = null;
 
+      const handle = (raw: string) => {
+        if (!raw.trim()) return;
+        const evt = JSON.parse(raw) as {
+          type: string;
+          delta?: string;
+          error?: string;
+          status?: number;
+          credits?: number;
+          fileWrites?: { path: string; content: string }[];
+        };
+        if (evt.type === "text" && evt.delta) {
+          text += evt.delta;
+          if (!bubbleId) {
+            bubbleId = store.addMessage("assistant", text).id;
+            store.setLoading(false);
+          } else {
+            store.updateMessage(bubbleId, text);
+          }
+        } else if (evt.type === "done") {
+          if (typeof evt.credits === "number") store.setCredits(evt.credits);
+          fileWrites = evt.fileWrites ?? [];
+        } else if (evt.type === "error") {
+          if (evt.status === 402) store.setShowPricing(true);
+          streamError = evt.error ?? t(lang, "genericError");
+        }
+      };
 
-      const reply =
-        data.text?.trim() ||
-        (data.fileWrites?.length ? "Done — preview updated." : "Done.");
-      store.addMessage("assistant", reply);
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const l of lines) handle(l);
+      }
+      if (buffer.trim()) handle(buffer);
 
-      if (Array.isArray(data.fileWrites) && data.fileWrites.length) {
+      if (streamError) throw new Error(streamError);
+
+      const fallback = fileWrites.length ? "Done — preview updated." : "Done.";
+      if (!bubbleId) {
+        bubbleId = store.addMessage("assistant", text.trim() || fallback).id;
+      } else if (!text.trim()) {
+        store.updateMessage(bubbleId, fallback);
+      }
+
+      if (fileWrites.length) {
         let label = "";
-        for (const fw of data.fileWrites) {
+        for (const fw of fileWrites) {
           store.writeFile(fw.path, fw.content, prompt);
           label = fw.path;
         }
-        const msgs = store.get().messages;
-        const last = msgs[msgs.length - 1];
-        if (last) setLastFile((prev) => ({ ...prev, [last.id]: label }));
+        const id = bubbleId;
+        if (id) setLastFile((prev) => ({ ...prev, [id]: label }));
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : t(lang, "genericError");
