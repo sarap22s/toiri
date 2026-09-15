@@ -25,8 +25,40 @@ export function PreviewPanel() {
   const [view, setView] = useState<"preview" | "code">("preview");
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const publishedSlug = useStore((s) => s.publishedSlug);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [showShare, setShowShare] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const code = files["/App.js"] ?? "";
+  const shareUrl =
+    publishedSlug && typeof window !== "undefined"
+      ? `${window.location.origin}/app/${publishedSlug}`
+      : "";
+
+  const publish = async () => {
+    setPublishing(true);
+    setPublishError(null);
+    setShowShare(true);
+    try {
+      await store.publish(t(lang, "publishedTitle"));
+    } catch (err) {
+      setPublishError(err instanceof Error ? err.message : t(lang, "genericError"));
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 1600);
+    } catch {
+      /* clipboard blocked */
+    }
+  };
 
   const sandpackFiles = useMemo(() => {
     const out: Record<string, { code: string; active?: boolean }> = {};
