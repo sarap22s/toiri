@@ -174,6 +174,57 @@ export function PreviewPanel() {
         </div>
       )}
 
+      {showShare && (
+        <div className="absolute right-3 top-14 z-30 w-80 overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-xl backdrop-blur">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11.5px] font-semibold text-foreground/60">
+              {t(lang, "shareTitle")}
+            </span>
+            <button
+              onClick={() => setShowShare(false)}
+              className="text-[11px] text-foreground/40 hover:text-foreground/70"
+            >
+              {t(lang, "close")}
+            </button>
+          </div>
+          {publishing ? (
+            <p className="mt-3 text-[12px] text-foreground/50">{t(lang, "publishing")}</p>
+          ) : publishError ? (
+            <p className="mt-3 text-[12px] text-red-300">{publishError}</p>
+          ) : shareUrl ? (
+            <>
+              <p className="mt-2 text-[11.5px] text-foreground/45">
+                {t(lang, "shareHint")}
+              </p>
+              <div className="mt-2 flex items-center gap-2">
+                <input
+                  readOnly
+                  value={shareUrl}
+                  onFocus={(e) => e.currentTarget.select()}
+                  className="min-w-0 flex-1 rounded-lg border border-border bg-ink-800/70 px-2.5 py-1.5 text-[12px] text-foreground/80"
+                />
+                <IconBtn onClick={copyLink} title={t(lang, "copyLink")}>
+                  {linkCopied ? (
+                    <Check size={13} className="text-lime" />
+                  ) : (
+                    <Copy size={13} />
+                  )}
+                </IconBtn>
+                <a
+                  href={shareUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={t(lang, "openLink")}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/45 transition hover:bg-foreground/5 hover:text-foreground/80"
+                >
+                  <ExternalLink size={13} />
+                </a>
+              </div>
+            </>
+          ) : null}
+        </div>
+      )}
+
       <div className="flex-1 overflow-hidden bg-ink-950">
         <ClientOnly fallback={null}>
           <Suspense fallback={null}>
