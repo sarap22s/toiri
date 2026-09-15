@@ -30,8 +30,25 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [leftWidth, setLeftWidth] = useState(42);
   const [payment, setPayment] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
+  const [isStacked, setIsStacked] = useState(false);
   const dragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lang = useStore((s) => s.lang);
+  const fileCount = useStore((s) => Object.keys(s.files).length);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const apply = () => setIsStacked(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  // When the first app is generated on a small screen, reveal the preview.
+  useEffect(() => {
+    if (fileCount > 0) setMobileTab("preview");
+  }, [fileCount]);
 
   useEffect(() => {
     store.hydrate();
