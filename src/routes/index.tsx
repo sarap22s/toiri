@@ -179,3 +179,29 @@ function Index() {
     </div>
   );
 }
+
+function TabBtn({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition ${
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-foreground/45 hover:text-foreground/75"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
+  );
+}
