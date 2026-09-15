@@ -46,10 +46,14 @@ function Index() {
     return () => mq.removeEventListener("change", apply);
   }, []);
 
-  // When the first app is generated on a small screen, reveal the preview.
+  // Once a real app is generated on a small screen, reveal the preview.
   useEffect(() => {
-    if (fileCount > 0) setMobileTab("preview");
-  }, [fileCount]);
+    if (firstCode.current === null) {
+      firstCode.current = appCode;
+      return;
+    }
+    if (appCode !== firstCode.current) setMobileTab("preview");
+  }, [appCode]);
 
   useEffect(() => {
     store.hydrate();
