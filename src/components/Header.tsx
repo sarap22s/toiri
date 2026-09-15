@@ -7,7 +7,7 @@ export function Header() {
   const lang = useStore((s) => s.lang);
 
   return (
-    <header className="flex items-center justify-between px-5 py-3.5">
+    <header className="flex items-center justify-between gap-3 px-4 py-3 sm:px-5 sm:py-3.5">
       <div className="flex items-center gap-3">
         <div className="accent-border relative flex h-9 w-9 items-center justify-center rounded-xl bg-ink-800">
           <span className="font-display text-lg font-bold text-primary">T</span>
@@ -17,11 +17,13 @@ export function Header() {
           <h1 className="font-display text-[17px] font-bold tracking-tight text-foreground">
             Toiri
           </h1>
-          <p className="text-[11px] text-foreground/40">{t(lang, "tagline")}</p>
+          <p className="hidden text-[11px] text-foreground/40 sm:block">
+            {t(lang, "tagline")}
+          </p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <button
           onClick={() => store.setLang(lang === "en" ? "bn" : "en")}
           className="flex items-center gap-1.5 rounded-full border border-border bg-ink-800/60 px-3 py-1.5 text-[11px] font-semibold text-foreground/55 transition hover:text-foreground"
@@ -32,7 +34,7 @@ export function Header() {
         </button>
         <button
           onClick={() => store.setShowPricing(true)}
-          className="flex items-center gap-1.5 rounded-full border border-lime/20 bg-lime/5 px-3 py-1.5 text-[11px] font-semibold text-lime transition hover:bg-lime/10"
+          className="flex items-center gap-1.5 rounded-full border border-lime/20 bg-lime/5 px-3 py-1.5 text-[11px] font-semibold text-lime whitespace-nowrap transition hover:bg-lime/10"
         >
           <Coins size={12} />
           {credits === null ? "—" : credits} {t(lang, "creditsLabel")}

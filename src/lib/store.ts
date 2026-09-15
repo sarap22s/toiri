@@ -36,7 +36,7 @@ const STARTER_APP = `export default function App() {
       <div>
         <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1 }}>তৈরি</div>
         <p style={{ color: "#8b8b9e", marginTop: 8 }}>
-          Ask on the left and your app appears here.
+          Describe your app in the chat and it appears here.
         </p>
       </div>
     </div>

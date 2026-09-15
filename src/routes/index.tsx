@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { ChatPanel } from "@/components/ChatPanel";
 import { PreviewPanel } from "@/components/PreviewPanel";
 import { Header } from "@/components/Header";
 import { PricingModal } from "@/components/PricingModal";
-import { store } from "@/lib/store";
+import { store, useStore } from "@/lib/store";
+import { MessageSquare, Monitor } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,8 +30,30 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [leftWidth, setLeftWidth] = useState(42);
   const [payment, setPayment] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<"chat" | "preview">("chat");
+  const [isStacked, setIsStacked] = useState(false);
   const dragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const lang = useStore((s) => s.lang);
+  const appCode = useStore((s) => s.files["/App.js"] ?? "");
+  const firstCode = useRef<string | null>(null);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const apply = () => setIsStacked(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  // Once a real app is generated on a small screen, reveal the preview.
+  useEffect(() => {
+    if (firstCode.current === null) {
+      firstCode.current = appCode;
+      return;
+    }
+    if (appCode !== firstCode.current) setMobileTab("preview");
+  }, [appCode]);
 
   useEffect(() => {
     store.hydrate();
@@ -101,26 +124,89 @@ function Index() {
 
       <div className="relative z-10 flex h-full flex-col">
         <Header />
-        <div ref={containerRef} className="flex flex-1 gap-0 overflow-hidden px-3 pb-3">
-          <div style={{ width: `${leftWidth}%` }} className="h-full min-w-[320px]">
+        {isStacked && (
+          <div className="mx-3 mb-2 flex items-center gap-1 rounded-xl border border-border bg-ink-800/70 p-1">
+            <TabBtn
+              active={mobileTab === "chat"}
+              onClick={() => setMobileTab("chat")}
+              icon={<MessageSquare size={13} />}
+              label={lang === "bn" ? "চ্যাট" : "Chat"}
+            />
+            <TabBtn
+              active={mobileTab === "preview"}
+              onClick={() => setMobileTab("preview")}
+              icon={<Monitor size={13} />}
+              label={lang === "bn" ? "প্রিভিউ" : "Preview"}
+            />
+          </div>
+        )}
+
+        <div
+          ref={containerRef}
+          className="flex min-h-0 flex-1 gap-0 overflow-hidden px-3 pb-3"
+        >
+          <div
+            style={isStacked ? undefined : { width: `${leftWidth}%` }}
+            className={`h-full min-h-0 ${
+              isStacked
+                ? mobileTab === "chat"
+                  ? "w-full"
+                  : "hidden"
+                : "min-w-[320px]"
+            }`}
+          >
             <ChatPanel />
           </div>
 
-          <div
-            className="resizer my-1"
-            onMouseDown={onMouseDown}
-            role="separator"
-            aria-label="Resize panels"
-          />
+          {!isStacked && (
+            <div
+              className="resizer my-1"
+              onMouseDown={onMouseDown}
+              role="separator"
+              aria-label="Resize panels"
+            />
+          )}
 
           <div
-            style={{ width: `${100 - leftWidth}%` }}
-            className="h-full min-w-[360px]"
+            style={isStacked ? undefined : { width: `${100 - leftWidth}%` }}
+            className={`h-full min-h-0 ${
+              isStacked
+                ? mobileTab === "preview"
+                  ? "w-full"
+                  : "hidden"
+                : "min-w-[360px]"
+            }`}
           >
             <PreviewPanel />
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+function TabBtn({
+  active,
+  onClick,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition ${
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-foreground/45 hover:text-foreground/75"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }
