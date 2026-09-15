@@ -8,7 +8,7 @@ export const STRINGS: Record<Lang, Dict> = {
     assistantLabel: "Assistant",
     newChat: "New chat",
     whatToBuild: "What should we build?",
-    chatIntro: "Describe an app in Bangla or English and watch it appear on the right.",
+    chatIntro: "Describe an app in Bangla or English and watch it appear in the live preview.",
     thinking: "Thinking…",
     composerPlaceholder: "Build a todo app with a dark theme…",
     disclaimer: "Toiri builds a single-file React app in the live preview.",
