@@ -64,7 +64,13 @@ export const Route = createFileRoute("/api/chat")({
             .map((c) => c.input as { path: string; content: string })
             .filter((i) => typeof i?.path === "string" && typeof i?.content === "string");
 
-          return Response.json({ text: result.text, fileWrites });
+          // Charge only after a successful generation.
+          const remaining = await spendCredit(body.deviceId);
+          return Response.json({
+            text: result.text,
+            fileWrites,
+            credits: remaining ?? 0,
+          });
         } catch (err) {
           const e = err as { statusCode?: number; message?: string };
           const status = e?.statusCode ?? 500;
