@@ -17,6 +17,8 @@ export type State = {
   credits: number | null;
   showPricing: boolean;
   lang: Lang;
+  deviceId: string;
+
 };
 
 const STARTER_APP = `export default function App() {
