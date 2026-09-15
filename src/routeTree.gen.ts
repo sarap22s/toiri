@@ -11,6 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
+import { Route as ApiCreditsRouteImport } from './routes/api/credits'
+import { Route as ApiPublicSslcommerzCancelRouteImport } from './routes/api/public/sslcommerz/cancel'
+import { Route as ApiPublicSslcommerzFailRouteImport } from './routes/api/public/sslcommerz/fail'
+import { Route as ApiPublicSslcommerzIpnRouteImport } from './routes/api/public/sslcommerz/ipn'
+import { Route as ApiPublicSslcommerzSuccessRouteImport } from './routes/api/public/sslcommerz/success'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +28,112 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCheckoutRoute = ApiCheckoutRouteImport.update({
+  id: '/api/checkout',
+  path: '/api/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCreditsRoute = ApiCreditsRouteImport.update({
+  id: '/api/credits',
+  path: '/api/credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSslcommerzCancelRoute =
+  ApiPublicSslcommerzCancelRouteImport.update({
+    id: '/api/public/sslcommerz/cancel',
+    path: '/api/public/sslcommerz/cancel',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicSslcommerzFailRoute = ApiPublicSslcommerzFailRouteImport.update({
+  id: '/api/public/sslcommerz/fail',
+  path: '/api/public/sslcommerz/fail',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSslcommerzIpnRoute = ApiPublicSslcommerzIpnRouteImport.update({
+  id: '/api/public/sslcommerz/ipn',
+  path: '/api/public/sslcommerz/ipn',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicSslcommerzSuccessRoute =
+  ApiPublicSslcommerzSuccessRouteImport.update({
+    id: '/api/public/sslcommerz/success',
+    path: '/api/public/sslcommerz/success',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/credits': typeof ApiCreditsRoute
+  '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
+  '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
+  '/api/public/sslcommerz/ipn': typeof ApiPublicSslcommerzIpnRoute
+  '/api/public/sslcommerz/success': typeof ApiPublicSslcommerzSuccessRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/credits': typeof ApiCreditsRoute
+  '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
+  '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
+  '/api/public/sslcommerz/ipn': typeof ApiPublicSslcommerzIpnRoute
+  '/api/public/sslcommerz/success': typeof ApiPublicSslcommerzSuccessRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/chat': typeof ApiChatRoute
+  '/api/checkout': typeof ApiCheckoutRoute
+  '/api/credits': typeof ApiCreditsRoute
+  '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
+  '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
+  '/api/public/sslcommerz/ipn': typeof ApiPublicSslcommerzIpnRoute
+  '/api/public/sslcommerz/success': typeof ApiPublicSslcommerzSuccessRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/api/chat'
+    | '/api/checkout'
+    | '/api/credits'
+    | '/api/public/sslcommerz/cancel'
+    | '/api/public/sslcommerz/fail'
+    | '/api/public/sslcommerz/ipn'
+    | '/api/public/sslcommerz/success'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/chat'
-  id: '__root__' | '/' | '/api/chat'
+  to:
+    | '/'
+    | '/api/chat'
+    | '/api/checkout'
+    | '/api/credits'
+    | '/api/public/sslcommerz/cancel'
+    | '/api/public/sslcommerz/fail'
+    | '/api/public/sslcommerz/ipn'
+    | '/api/public/sslcommerz/success'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/chat'
+    | '/api/checkout'
+    | '/api/credits'
+    | '/api/public/sslcommerz/cancel'
+    | '/api/public/sslcommerz/fail'
+    | '/api/public/sslcommerz/ipn'
+    | '/api/public/sslcommerz/success'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiCheckoutRoute: typeof ApiCheckoutRoute
+  ApiCreditsRoute: typeof ApiCreditsRoute
+  ApiPublicSslcommerzCancelRoute: typeof ApiPublicSslcommerzCancelRoute
+  ApiPublicSslcommerzFailRoute: typeof ApiPublicSslcommerzFailRoute
+  ApiPublicSslcommerzIpnRoute: typeof ApiPublicSslcommerzIpnRoute
+  ApiPublicSslcommerzSuccessRoute: typeof ApiPublicSslcommerzSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +152,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/checkout': {
+      id: '/api/checkout'
+      path: '/api/checkout'
+      fullPath: '/api/checkout'
+      preLoaderRoute: typeof ApiCheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/credits': {
+      id: '/api/credits'
+      path: '/api/credits'
+      fullPath: '/api/credits'
+      preLoaderRoute: typeof ApiCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sslcommerz/cancel': {
+      id: '/api/public/sslcommerz/cancel'
+      path: '/api/public/sslcommerz/cancel'
+      fullPath: '/api/public/sslcommerz/cancel'
+      preLoaderRoute: typeof ApiPublicSslcommerzCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sslcommerz/fail': {
+      id: '/api/public/sslcommerz/fail'
+      path: '/api/public/sslcommerz/fail'
+      fullPath: '/api/public/sslcommerz/fail'
+      preLoaderRoute: typeof ApiPublicSslcommerzFailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sslcommerz/ipn': {
+      id: '/api/public/sslcommerz/ipn'
+      path: '/api/public/sslcommerz/ipn'
+      fullPath: '/api/public/sslcommerz/ipn'
+      preLoaderRoute: typeof ApiPublicSslcommerzIpnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/sslcommerz/success': {
+      id: '/api/public/sslcommerz/success'
+      path: '/api/public/sslcommerz/success'
+      fullPath: '/api/public/sslcommerz/success'
+      preLoaderRoute: typeof ApiPublicSslcommerzSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiCheckoutRoute: ApiCheckoutRoute,
+  ApiCreditsRoute: ApiCreditsRoute,
+  ApiPublicSslcommerzCancelRoute: ApiPublicSslcommerzCancelRoute,
+  ApiPublicSslcommerzFailRoute: ApiPublicSslcommerzFailRoute,
+  ApiPublicSslcommerzIpnRoute: ApiPublicSslcommerzIpnRoute,
+  ApiPublicSslcommerzSuccessRoute: ApiPublicSslcommerzSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

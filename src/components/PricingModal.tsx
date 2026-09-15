@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Coins, CreditCard, Smartphone, X } from "lucide-react";
+import { Coins, CreditCard, Loader2, Smartphone, X } from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { CREDIT_PACKS, creditsLeftText, t } from "@/lib/i18n";
 
@@ -7,8 +8,29 @@ export function PricingModal() {
   const open = useStore((s) => s.showPricing);
   const credits = useStore((s) => s.credits);
   const lang = useStore((s) => s.lang);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const close = () => store.setShowPricing(false);
+
+  const buy = async (packId: string) => {
+    setError(null);
+    setBusy(packId);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ deviceId: store.get().deviceId, packId }),
+      });
+      const data = (await res.json()) as { gatewayUrl?: string; error?: string };
+      if (!data.gatewayUrl) throw new Error(data.error || "Could not start the payment.");
+      window.location.href = data.gatewayUrl;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not start the payment.");
+      setBusy(null);
+    }
+  };
+
 
   return (
     <AnimatePresence>
@@ -63,35 +85,39 @@ export function PricingModal() {
                       </span>
                     </div>
                   </div>
-                  <span className="rounded-lg border border-border px-3.5 py-2 text-[12.5px] font-semibold text-foreground/50">
+                  <button
+                    onClick={() => buy(pack.id)}
+                    disabled={busy !== null}
+                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-semibold text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
+                  >
+                    {busy === pack.id && <Loader2 size={12} className="animate-spin" />}
                     ৳{pack.amountBDT}
-                  </span>
+                  </button>
                 </div>
               ))}
             </div>
 
+            {error && (
+              <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-[12px] text-red-300">
+                {error}
+              </p>
+            )}
+
             <div className="mt-5 rounded-xl border border-lime/20 bg-lime/5 p-3.5">
               <div className="flex items-center gap-2 text-[12.5px] font-semibold text-lime">
                 <Smartphone size={13} />
-                {t(lang, "comingSoon")}
+                {lang === "bn" ? "সিকিউর পেমেন্ট" : "Secure payment"}
               </div>
               <p className="mt-1 text-[11.5px] leading-relaxed text-foreground/45">
-                {t(lang, "comingSoonBody")}
+                {lang === "bn"
+                  ? "SSLCommerz-এর মাধ্যমে পেমেন্ট করুন। পেমেন্ট সফল হলে ক্রেডিট সঙ্গে সঙ্গে যোগ হবে।"
+                  : "Payments are processed by SSLCommerz. Credits are added as soon as the payment is confirmed."}
               </p>
               <div className="mt-2.5 flex items-center gap-1.5 text-[10.5px] uppercase tracking-wider text-foreground/30">
                 <CreditCard size={11} /> bKash · Nagad · Rocket · Upay · Card
               </div>
             </div>
 
-            <button
-              onClick={() => {
-                store.resetFreeCredits();
-                close();
-              }}
-              className="mt-4 w-full rounded-xl bg-primary py-2.5 text-[13px] font-semibold text-primary-foreground transition hover:bg-primary/85"
-            >
-              {lang === "bn" ? "ফ্রি ক্রেডিট রিসেট করুন" : "Reset free credits"}
-            </button>
           </motion.div>
         </motion.div>
       )}

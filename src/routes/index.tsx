@@ -28,12 +28,30 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [leftWidth, setLeftWidth] = useState(42);
+  const [payment, setPayment] = useState<string | null>(null);
   const dragging = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     store.hydrate();
+    const url = new URL(window.location.href);
+    const result = url.searchParams.get("payment");
+    if (result) {
+      setPayment(result);
+      url.searchParams.delete("payment");
+      window.history.replaceState({}, "", url.pathname + url.search);
+      // Give the payment callback a moment, then pull the authoritative balance.
+      void store.refreshCredits();
+      const retry = setTimeout(() => void store.refreshCredits(), 2500);
+      const hide = setTimeout(() => setPayment(null), 8000);
+      return () => {
+        clearTimeout(retry);
+        clearTimeout(hide);
+      };
+    }
+    return;
   }, []);
+
 
   const onMouseDown = useCallback(() => {
     dragging.current = true;
@@ -65,6 +83,22 @@ function Index() {
     <div className="relative h-screen w-screen overflow-hidden">
       <div className="app-bg" />
       <PricingModal />
+      {payment && (
+        <div
+          className={`fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-xl border px-4 py-2.5 text-[12.5px] font-medium backdrop-blur ${
+            payment === "success"
+              ? "border-lime/40 bg-lime/10 text-lime"
+              : "border-red-500/30 bg-red-500/10 text-red-300"
+          }`}
+        >
+          {payment === "success"
+            ? "Payment successful — your credits have been added."
+            : payment === "cancelled"
+              ? "Payment cancelled."
+              : "Payment failed. No credits were added."}
+        </div>
+      )}
+
       <div className="relative z-10 flex h-full flex-col">
         <Header />
         <div ref={containerRef} className="flex flex-1 gap-0 overflow-hidden px-3 pb-3">

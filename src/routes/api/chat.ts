@@ -3,16 +3,34 @@ import { generateText, tool, stepCountIs } from "ai";
 import { z } from "zod";
 import { createLovableAiGatewayProvider, SYSTEM_PROMPT } from "@/lib/ai-gateway.server";
 
-type Incoming = { messages?: { role: "user" | "assistant"; content: string }[] };
+type Incoming = {
+  messages?: { role: "user" | "assistant"; content: string }[];
+  deviceId?: string;
+};
 
 export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const { isValidDeviceId, getBalance, spendCredit } = await import(
+          "@/lib/credits.server"
+        );
         const body = (await request.json()) as Incoming;
         const messages = body.messages;
         if (!Array.isArray(messages) || messages.length === 0) {
           return Response.json({ error: "Messages are required" }, { status: 400 });
+        }
+        if (!isValidDeviceId(body.deviceId)) {
+          return Response.json({ error: "Invalid device id" }, { status: 400 });
+        }
+
+        // The balance lives server-side, so the browser can never grant itself credits.
+        const balance = await getBalance(body.deviceId);
+        if (balance <= 0) {
+          return Response.json(
+            { error: "You are out of credits.", credits: 0 },
+            { status: 402 },
+          );
         }
 
         const key = process.env["LOVABLE_API_KEY"];
@@ -21,6 +39,7 @@ export const Route = createFileRoute("/api/chat")({
         }
 
         const gateway = createLovableAiGatewayProvider(key);
+
 
         try {
           const result = await generateText({
@@ -45,7 +64,13 @@ export const Route = createFileRoute("/api/chat")({
             .map((c) => c.input as { path: string; content: string })
             .filter((i) => typeof i?.path === "string" && typeof i?.content === "string");
 
-          return Response.json({ text: result.text, fileWrites });
+          // Charge only after a successful generation.
+          const remaining = await spendCredit(body.deviceId);
+          return Response.json({
+            text: result.text,
+            fileWrites,
+            credits: remaining ?? 0,
+          });
         } catch (err) {
           const e = err as { statusCode?: number; message?: string };
           const status = e?.statusCode ?? 500;

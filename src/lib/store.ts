@@ -17,6 +17,8 @@ export type State = {
   credits: number | null;
   showPricing: boolean;
   lang: Lang;
+  deviceId: string;
+
 };
 
 const STARTER_APP = `export default function App() {
@@ -43,7 +45,7 @@ const STARTER_APP = `export default function App() {
 `;
 
 const FREE_CREDITS = 10;
-const CREDITS_KEY = "toiri.credits";
+const DEVICE_KEY = "toiri.device";
 const LANG_KEY = "toiri.lang";
 
 let state: State = {
@@ -54,6 +56,7 @@ let state: State = {
   credits: null,
   showPricing: false,
   lang: "en",
+  deviceId: "",
 };
 
 const listeners = new Set<() => void>();
@@ -65,6 +68,17 @@ function set(patch: Partial<State>) {
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
+function readDeviceId(): string {
+  const existing = window.localStorage.getItem(DEVICE_KEY);
+  if (existing && /^[a-zA-Z0-9-]{8,64}$/.test(existing)) return existing;
+  const fresh =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${uid()}${uid()}${uid()}`;
+  window.localStorage.setItem(DEVICE_KEY, fresh);
+  return fresh;
+}
+
 export const store = {
   get: () => state,
   subscribe(listener: () => void) {
@@ -75,27 +89,32 @@ export const store = {
     if (typeof window === "undefined") return;
     const rawLang = window.localStorage.getItem(LANG_KEY);
     const lang: Lang = rawLang === "bn" ? "bn" : "en";
-    const rawCredits = window.localStorage.getItem(CREDITS_KEY);
-    const credits = rawCredits === null ? FREE_CREDITS : Number(rawCredits);
-    window.localStorage.setItem(CREDITS_KEY, String(credits));
-    set({ lang, credits: Number.isFinite(credits) ? credits : FREE_CREDITS });
+    const deviceId = readDeviceId();
+    set({ lang, deviceId });
+    void store.refreshCredits();
+  },
+  async refreshCredits() {
+    if (!state.deviceId) return;
+    try {
+      const res = await fetch("/api/credits", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ deviceId: state.deviceId }),
+      });
+      const data = (await res.json()) as { credits?: number };
+      if (typeof data.credits === "number") set({ credits: data.credits });
+    } catch {
+      /* keep the last known balance */
+    }
   },
   setLang(lang: Lang) {
     if (typeof window !== "undefined") window.localStorage.setItem(LANG_KEY, lang);
     set({ lang });
   },
   setCredits(credits: number) {
-    if (typeof window !== "undefined")
-      window.localStorage.setItem(CREDITS_KEY, String(credits));
     set({ credits });
   },
-  spendCredit() {
-    const next = Math.max(0, (state.credits ?? 0) - 1);
-    store.setCredits(next);
-  },
-  resetFreeCredits() {
-    store.setCredits(FREE_CREDITS);
-  },
+
   addMessage(role: ChatMessage["role"], content: string) {
     const message: ChatMessage = { id: uid(), role, content };
     set({ messages: [...state.messages, message] });

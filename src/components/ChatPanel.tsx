@@ -44,18 +44,24 @@ export function ChatPanel() {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ messages: history }),
+        body: JSON.stringify({ messages: history, deviceId: store.get().deviceId }),
       });
 
       const data = (await res.json()) as {
         text?: string;
         error?: string;
+        credits?: number;
         fileWrites?: { path: string; content: string }[];
       };
 
-      if (data.error) throw new Error(data.error);
+      if (typeof data.credits === "number") store.setCredits(data.credits);
 
-      store.spendCredit();
+      if (data.error) {
+        if (res.status === 402) store.setShowPricing(true);
+        throw new Error(data.error);
+      }
+
+
 
       const reply =
         data.text?.trim() ||
