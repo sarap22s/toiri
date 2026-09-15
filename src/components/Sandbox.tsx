@@ -45,7 +45,12 @@ export default function Sandbox({
           lineHeight: "1.6",
         },
       }}
-      files={files}
+      files={{
+        "/styles.css": {
+          code: "html,body,#root{margin:0;padding:0;background:#0a0a0c;color:#e7e7ee;}",
+        },
+        ...files,
+      }}
     >
       <SandpackLayout style={{ height: "100%", border: "none" }}>
         {view === "preview" ? (
