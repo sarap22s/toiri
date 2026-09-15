@@ -30,6 +30,14 @@ export const STRINGS: Record<Lang, Dict> = {
     restore: "Restore",
     noVersions: "No versions yet — build something first.",
     versionsTitle: "Version history",
+    publish: "Publish",
+    republish: "Update link",
+    publishing: "Publishing…",
+    publishedTitle: "Toiri app",
+    shareTitle: "Your app is live",
+    shareHint: "Anyone with this link can open your app.",
+    copyLink: "Copy link",
+    openLink: "Open",
 
     comingSoonBody:
       "Paid packs via bKash, Nagad, Rocket and cards are on the way. For now every browser gets free credits.",
@@ -61,6 +69,14 @@ export const STRINGS: Record<Lang, Dict> = {
     restore: "ফিরিয়ে আনুন",
     noVersions: "এখনো কোনো ভার্সন নেই — আগে কিছু বানান।",
     versionsTitle: "ভার্সন হিস্ট্রি",
+    publish: "পাবলিশ",
+    republish: "লিংক আপডেট",
+    publishing: "পাবলিশ হচ্ছে…",
+    publishedTitle: "তৈরি অ্যাপ",
+    shareTitle: "আপনার অ্যাপ লাইভ",
+    shareHint: "এই লিংক যার কাছে থাকবে সে অ্যাপটি খুলতে পারবে।",
+    copyLink: "লিংক কপি",
+    openLink: "খুলুন",
 
     comingSoonBody:
       "বিকাশ, নগদ, রকেট ও কার্ডে পেইড প্যাক শীঘ্রই আসছে। আপাতত প্রতিটি ব্রাউজার ফ্রি ক্রেডিট পাবে।",
