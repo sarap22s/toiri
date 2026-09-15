@@ -119,21 +119,58 @@ function Index() {
 
       <div className="relative z-10 flex h-full flex-col">
         <Header />
-        <div ref={containerRef} className="flex flex-1 gap-0 overflow-hidden px-3 pb-3">
-          <div style={{ width: `${leftWidth}%` }} className="h-full min-w-[320px]">
+        {isStacked && (
+          <div className="mx-3 mb-2 flex items-center gap-1 rounded-xl border border-border bg-ink-800/70 p-1">
+            <TabBtn
+              active={mobileTab === "chat"}
+              onClick={() => setMobileTab("chat")}
+              icon={<MessageSquare size={13} />}
+              label={lang === "bn" ? "চ্যাট" : "Chat"}
+            />
+            <TabBtn
+              active={mobileTab === "preview"}
+              onClick={() => setMobileTab("preview")}
+              icon={<Monitor size={13} />}
+              label={lang === "bn" ? "প্রিভিউ" : "Preview"}
+            />
+          </div>
+        )}
+
+        <div
+          ref={containerRef}
+          className="flex min-h-0 flex-1 gap-0 overflow-hidden px-3 pb-3"
+        >
+          <div
+            style={isStacked ? undefined : { width: `${leftWidth}%` }}
+            className={`h-full min-h-0 ${
+              isStacked
+                ? mobileTab === "chat"
+                  ? "w-full"
+                  : "hidden"
+                : "min-w-[320px]"
+            }`}
+          >
             <ChatPanel />
           </div>
 
-          <div
-            className="resizer my-1"
-            onMouseDown={onMouseDown}
-            role="separator"
-            aria-label="Resize panels"
-          />
+          {!isStacked && (
+            <div
+              className="resizer my-1"
+              onMouseDown={onMouseDown}
+              role="separator"
+              aria-label="Resize panels"
+            />
+          )}
 
           <div
-            style={{ width: `${100 - leftWidth}%` }}
-            className="h-full min-w-[360px]"
+            style={isStacked ? undefined : { width: `${100 - leftWidth}%` }}
+            className={`h-full min-h-0 ${
+              isStacked
+                ? mobileTab === "preview"
+                  ? "w-full"
+                  : "hidden"
+                : "min-w-[360px]"
+            }`}
           >
             <PreviewPanel />
           </div>
