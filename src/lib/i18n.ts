@@ -22,6 +22,8 @@ export const STRINGS: Record<Lang, Dict> = {
     close: "Close",
     genericError: "Something went wrong. Please try again.",
     comingSoon: "Payments coming soon",
+    trySample: "Load a sample app (Bangla bakery chatbot)",
+
     comingSoonBody:
       "Paid packs via bKash, Nagad, Rocket and cards are on the way. For now every browser gets free credits.",
   },
@@ -44,6 +46,8 @@ export const STRINGS: Record<Lang, Dict> = {
     close: "বন্ধ",
     genericError: "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।",
     comingSoon: "পেমেন্ট শীঘ্রই আসছে",
+    trySample: "স্যাম্পল অ্যাপ দেখুন (বাংলা বেকারি চ্যাটবট)",
+
     comingSoonBody:
       "বিকাশ, নগদ, রকেট ও কার্ডে পেইড প্যাক শীঘ্রই আসছে। আপাতত প্রতিটি ব্রাউজার ফ্রি ক্রেডিট পাবে।",
   },

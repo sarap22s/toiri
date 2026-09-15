@@ -137,7 +137,14 @@ export function ChatPanel() {
                   />
                 </motion.button>
               ))}
+              <button
+                onClick={() => store.loadDemo()}
+                className="mt-1 rounded-xl border border-accent/30 bg-accent/5 px-3.5 py-2.5 text-[12.5px] font-medium text-accent-foreground/90 transition hover:bg-accent/10"
+              >
+                {t(lang, "trySample")}
+              </button>
             </div>
+
           </div>
         ) : (
           <AnimatePresence initial={false}>
