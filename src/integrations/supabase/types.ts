@@ -83,6 +83,27 @@ export type Database = {
         }
         Relationships: []
       }
+      device_grants: {
+        Row: {
+          day: string
+          devices: number
+          ip_hash: string
+          updated_at: string
+        }
+        Insert: {
+          day?: string
+          devices?: number
+          ip_hash: string
+          updated_at?: string
+        }
+        Update: {
+          day?: string
+          devices?: number
+          ip_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       published_apps: {
         Row: {
           code: string
@@ -118,6 +139,10 @@ export type Database = {
       add_credits: {
         Args: { _amount: number; _device_id: string }
         Returns: number
+      }
+      claim_new_device: {
+        Args: { _ip_hash: string; _limit: number }
+        Returns: boolean
       }
     }
     Enums: {

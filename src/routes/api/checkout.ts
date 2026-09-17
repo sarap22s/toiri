@@ -49,9 +49,10 @@ export const Route = createFileRoute("/api/checkout")({
           return Response.json({ gatewayUrl, tranId });
         } catch (err) {
           console.error("checkout failed", err);
-          const message =
-            err instanceof Error ? err.message : "Could not start the payment.";
-          return Response.json({ error: message }, { status: 500 });
+          return Response.json(
+            { error: "Could not start the payment. Please try again." },
+            { status: 500 },
+          );
         }
       },
     },

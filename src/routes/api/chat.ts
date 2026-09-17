@@ -15,10 +15,14 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { isValidDeviceId, getBalance, spendCredit } = await import(
-          "@/lib/credits.server"
-        );
-        const body = (await request.json()) as Incoming;
+        const {
+          isValidDeviceId,
+          getBalance,
+          spendCredit,
+          clientIpHash,
+          FreeCreditLimitError,
+        } = await import("@/lib/credits.server");
+        const body = (await request.json().catch(() => ({}))) as Incoming;
         const messages = body.messages;
         if (!Array.isArray(messages) || messages.length === 0) {
           return Response.json({ error: "Messages are required" }, { status: 400 });
@@ -28,8 +32,27 @@ export const Route = createFileRoute("/api/chat")({
         }
         const deviceId = body.deviceId;
 
+        // Bound the cost of a single call: trim history and message length.
+        const trimmed = messages.slice(-20).map((m) => ({
+          role: m.role === "assistant" ? ("assistant" as const) : ("user" as const),
+          content: String(m.content ?? "").slice(0, 8000),
+        }));
+        const totalChars = trimmed.reduce((n, m) => n + m.content.length, 0);
+        if (totalChars > 60_000) {
+          return Response.json({ error: "That request is too long." }, { status: 413 });
+        }
+
         // The balance lives server-side, so the browser can never grant itself credits.
-        const balance = await getBalance(deviceId);
+        let balance: number;
+        try {
+          balance = await getBalance(deviceId, { ipHash: clientIpHash(request) });
+        } catch (err) {
+          if (err instanceof FreeCreditLimitError) {
+            return Response.json({ error: err.message, credits: 0 }, { status: 402 });
+          }
+          console.error("balance lookup failed", err);
+          return Response.json({ error: "Could not load credits" }, { status: 500 });
+        }
         if (balance <= 0) {
           return Response.json(
             { error: "You are out of credits.", credits: 0 },
@@ -50,7 +73,7 @@ export const Route = createFileRoute("/api/chat")({
               const result = streamText({
                 model: gateway("google/gemini-3.8-flash"),
                 system: SYSTEM_PROMPT,
-                messages: messages.map((m) => ({ role: m.role, content: m.content })),
+                messages: trimmed,
                 stopWhen: stepCountIs(2),
                 tools: {
                   write_file: tool({

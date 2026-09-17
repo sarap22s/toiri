@@ -37,7 +37,13 @@ export const Route = createFileRoute("/api/publish")({
             .eq("device_id", body.deviceId)
             .select("slug")
             .maybeSingle();
-          if (error) return Response.json({ error: error.message }, { status: 500 });
+          if (error) {
+            console.error("publish update failed", error);
+            return Response.json(
+              { error: "Could not publish. Try again." },
+              { status: 500 },
+            );
+          }
           if (data) return Response.json({ slug: data.slug });
         }
 
@@ -48,7 +54,11 @@ export const Route = createFileRoute("/api/publish")({
             .insert({ slug, device_id: body.deviceId, code, title });
           if (!error) return Response.json({ slug });
           if (!error.message.includes("duplicate")) {
-            return Response.json({ error: error.message }, { status: 500 });
+            console.error("publish insert failed", error);
+            return Response.json(
+              { error: "Could not publish. Try again." },
+              { status: 500 },
+            );
           }
         }
         return Response.json({ error: "Could not publish. Try again." }, { status: 500 });
