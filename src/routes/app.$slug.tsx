@@ -6,22 +6,25 @@ const Sandbox = lazy(() => import("@/components/Sandbox"));
 
 export const Route = createFileRoute("/app/$slug")({
   loader: ({ params }) => getPublishedApp({ data: { slug: params.slug } }),
-  head: ({ loaderData }) => {
-    const title = loaderData?.title
-      ? `${loaderData.title} — built with Toiri`
-      : "Published app — Toiri";
-    const description = "An app built from a chat with Toiri (তৈরি).";
+  head: ({ params, loaderData }) => {
+    const name = loaderData?.title ?? "Published app";
+    const title = `${name} — built with Toiri`;
+    const description = `${name} is a small web app built in Bangla and English with Toiri (তৈরি), the AI app builder. Open it here, then build your own.`;
+    const url = `https://assemble-smiles-co.lovable.app/app/${params.slug}`;
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:url", content: url },
         { property: "og:type", content: "website" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
+      links: [{ rel: "canonical", href: url }],
     };
   },
+
   errorComponent: () => <Notice text="This app could not be loaded." />,
   notFoundComponent: () => <Notice text="This app link does not exist." />,
   component: PublishedApp,
@@ -47,9 +50,10 @@ function PublishedApp() {
   return (
     <div className="flex h-screen w-screen flex-col bg-ink-950">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
-        <span className="truncate font-display text-[13px] font-semibold text-foreground/80">
+        <h1 className="truncate font-display text-[13px] font-semibold text-foreground/80">
           {app.title}
-        </span>
+        </h1>
+
         <Link
           to="/"
           className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-[12px] font-semibold text-primary-foreground"

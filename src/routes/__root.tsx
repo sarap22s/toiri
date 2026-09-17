@@ -77,15 +77,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Toiri — AI app builder for Bangladesh" },
-      {
-        name: "description",
-        content:
-          "Toiri (তৈরি) builds React apps from a bilingual Bangla and English chat, with a live preview beside you.",
-      },
+      { property: "og:site_name", content: "Toiri" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+
     links: [
       {
         rel: "stylesheet",
