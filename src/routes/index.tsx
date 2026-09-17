@@ -22,8 +22,11 @@ export const Route = createFileRoute("/")({
         content:
           "Describe an app in Bangla or English and watch Toiri build it live in the preview.",
       },
+      { property: "og:url", content: "https://assemble-smiles-co.lovable.app/" },
     ],
+    links: [{ rel: "canonical", href: "https://assemble-smiles-co.lovable.app/" }],
   }),
+
   component: Index,
 });
 
