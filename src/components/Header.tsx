@@ -16,7 +16,9 @@ export function Header() {
         <div className="leading-tight">
           <h1 className="font-display text-[17px] font-bold tracking-tight text-foreground">
             Toiri
+            <span className="sr-only"> — AI app builder for Bangladesh</span>
           </h1>
+
           <p className="hidden text-[11px] text-foreground/40 sm:block">
             {t(lang, "tagline")}
           </p>
