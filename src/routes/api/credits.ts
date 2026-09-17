@@ -4,15 +4,21 @@ export const Route = createFileRoute("/api/credits")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { isValidDeviceId, getBalance } = await import("@/lib/credits.server");
+        const { isValidDeviceId, getBalance, clientIpHash, FreeCreditLimitError } =
+          await import("@/lib/credits.server");
         const body = (await request.json().catch(() => ({}))) as { deviceId?: string };
         if (!isValidDeviceId(body.deviceId)) {
           return Response.json({ error: "Invalid device id" }, { status: 400 });
         }
         try {
-          const credits = await getBalance(body.deviceId);
+          const credits = await getBalance(body.deviceId, {
+            ipHash: clientIpHash(request),
+          });
           return Response.json({ credits });
         } catch (err) {
+          if (err instanceof FreeCreditLimitError) {
+            return Response.json({ credits: 0, limited: true });
+          }
           console.error("credits lookup failed", err);
           return Response.json({ error: "Could not load credits" }, { status: 500 });
         }
