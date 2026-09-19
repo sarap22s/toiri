@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { store, useStore } from "@/lib/store";
-import { SUGGESTIONS, outOfCreditsText, t } from "@/lib/i18n";
+import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
+import { PromptGallery } from "./PromptGallery";
 
 export function ChatPanel() {
   const messages = useStore((s) => s.messages);
