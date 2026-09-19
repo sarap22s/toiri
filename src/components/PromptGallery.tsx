@@ -11,7 +11,7 @@ export function PromptGallery({ onPick }: { onPick: (prompt: string) => void }) 
   const category = PROMPT_CATEGORIES.find((c) => c.id === active) ?? PROMPT_CATEGORIES[0]!;
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-0">
       <p className="mb-2 px-1 text-[11px] font-medium uppercase tracking-wider text-foreground/30">
         {t(lang, "pickCategory")}
       </p>

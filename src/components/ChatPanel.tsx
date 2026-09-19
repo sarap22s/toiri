@@ -152,7 +152,10 @@ export function ChatPanel() {
         )}
       </div>
 
-      <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto px-4 py-5">
+      <div
+        ref={scrollRef}
+        className="min-w-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-4 py-5"
+      >
         {messages.length === 0 ? (
           <div className="mx-auto flex min-h-full w-full max-w-[26rem] flex-col items-center justify-center py-4 text-center">
             <motion.div
