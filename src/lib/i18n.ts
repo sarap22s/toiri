@@ -38,6 +38,10 @@ export const STRINGS: Record<Lang, Dict> = {
     shareHint: "Anyone with this link can open your app.",
     copyLink: "Copy link",
     openLink: "Open",
+    pickCategory: "Pick what you want to build",
+    promptHint:
+      "Tap any idea — it sends a full, detailed description, so you don't have to know the steps. You can change anything afterwards by chatting.",
+
 
     comingSoonBody:
       "Paid packs via bKash, Nagad, Rocket and cards are on the way. For now every browser gets free credits.",
