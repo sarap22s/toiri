@@ -11,7 +11,6 @@ export function ChatPanel() {
   const isLoading = useStore((s) => s.isLoading);
   const lang = useStore((s) => s.lang);
   const credits = useStore((s) => s.credits);
-  const suggestions = SUGGESTIONS[lang];
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
