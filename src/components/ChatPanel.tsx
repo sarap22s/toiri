@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, Loader2, RotateCcw, Sparkles } from "lucide-react";
 import { store, useStore } from "@/lib/store";
-import { SUGGESTIONS, outOfCreditsText, t } from "@/lib/i18n";
+import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
+import { PromptGallery } from "./PromptGallery";
 
 export function ChatPanel() {
   const messages = useStore((s) => s.messages);
   const isLoading = useStore((s) => s.isLoading);
   const lang = useStore((s) => s.lang);
   const credits = useStore((s) => s.credits);
-  const suggestions = SUGGESTIONS[lang];
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -152,9 +152,12 @@ export function ChatPanel() {
         )}
       </div>
 
-      <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto px-4 py-5">
+      <div
+        ref={scrollRef}
+        className="min-w-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-4 py-5"
+      >
         {messages.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center text-center">
+          <div className="mx-auto flex min-h-full w-full max-w-[26rem] flex-col items-center justify-center py-4 text-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -169,23 +172,8 @@ export function ChatPanel() {
             <p className="mt-1.5 max-w-xs text-[13px] text-foreground/40">
               {t(lang, "chatIntro")}
             </p>
-            <div className="mt-7 grid w-full max-w-sm gap-2">
-              {suggestions.map((s, i) => (
-                <motion.button
-                  key={s}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.06 }}
-                  onClick={() => send(s)}
-                  className="group flex items-center justify-between gap-3 rounded-xl border border-border bg-ink-800/40 px-3.5 py-2.5 text-left text-[12.5px] text-foreground/60 transition hover:border-primary/30 hover:bg-ink-800/80 hover:text-foreground"
-                >
-                  {s}
-                  <ArrowUp
-                    size={13}
-                    className="shrink-0 rotate-45 text-foreground/20 transition group-hover:text-primary"
-                  />
-                </motion.button>
-              ))}
+            <div className="mt-7 grid w-full max-w-sm gap-2 text-left">
+              <PromptGallery onPick={(p) => send(p)} />
               <button
                 onClick={() => store.loadDemo()}
                 className="mt-1 rounded-xl border border-accent/30 bg-accent/5 px-3.5 py-2.5 text-[12.5px] font-medium text-accent-foreground/90 transition hover:bg-accent/10"
