@@ -49,9 +49,15 @@ export const Route = createFileRoute("/api/checkout")({
           return Response.json({ gatewayUrl, tranId });
         } catch (err) {
           console.error("checkout failed", err);
+          const notConfigured =
+            err instanceof Error && err.message === "Payments are not configured yet.";
           return Response.json(
-            { error: "Could not start the payment. Please try again." },
-            { status: 500 },
+            {
+              error: notConfigured
+                ? "Card and mobile payments are not switched on yet."
+                : "Could not start the payment. Please try again.",
+            },
+            { status: notConfigured ? 503 : 500 },
           );
         }
       },
