@@ -26,7 +26,9 @@ export function ChatPanel() {
     const prompt = text.trim();
     if (!prompt || isLoading) return;
 
-    if ((credits ?? 0) <= 0) {
+    // `null` means the balance is still loading — the server checks credits
+    // anyway, so don't block the first tap with a false "out of credits".
+    if (credits !== null && credits <= 0) {
       store.addMessage("assistant", outOfCreditsText(lang));
       store.setShowPricing(true);
       return;
