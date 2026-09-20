@@ -71,7 +71,7 @@ export function PricingModal() {
               </div>
               <button
                 onClick={close}
-                className="rounded-lg p-1.5 text-foreground/40 transition hover:bg-foreground/5 hover:text-foreground"
+                className="press rounded-lg p-1.5 text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
                 aria-label={t(lang, "close")}
               >
                 <X size={16} />
@@ -85,7 +85,7 @@ export function PricingModal() {
               {CREDIT_PACKS.map((pack) => (
                 <div
                   key={pack.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-ink-800/50 px-4 py-3"
+                  className="flex items-center justify-between rounded-xl border border-border bg-ink-800/50 px-4 py-3 transition-colors duration-200 hover:border-primary/30"
                 >
                   <div>
                     <div className="flex items-baseline gap-2">
@@ -100,7 +100,7 @@ export function PricingModal() {
                   <button
                     onClick={() => buy(pack.id)}
                     disabled={busy !== null}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-semibold text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
+                    className="press flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-semibold tabular-nums text-primary-foreground hover:bg-primary/85 disabled:opacity-40"
                   >
                     {busy === pack.id && <Loader2 size={12} className="animate-spin" />}
                     ৳{pack.amountBDT}
