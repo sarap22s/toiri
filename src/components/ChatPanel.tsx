@@ -335,7 +335,57 @@ export function ChatPanel() {
       </div>
 
       <div className="border-t border-border p-3">
+        {attachments.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {attachments.map((a, i) => (
+              <span
+                key={`${a.name}-${i}`}
+                className="flex items-center gap-1.5 rounded-md border border-border bg-ink-800/70 px-2 py-1 text-[11px] text-foreground/70"
+              >
+                <Paperclip size={10} className="text-primary" />
+                {a.name}
+                <button
+                  onClick={() =>
+                    setAttachments((prev) => prev.filter((_, idx) => idx !== i))
+                  }
+                  aria-label={t(lang, "removeFile")}
+                  className="press text-muted-foreground hover:text-foreground"
+                >
+                  <X size={10} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-end gap-2 rounded-xl border border-border bg-ink-800/60 p-2 transition-colors duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-primary/15">
+          <input
+            ref={fileRef}
+            type="file"
+            multiple
+            hidden
+            accept=".js,.jsx,.ts,.tsx,.css,.html,.json,.md,.txt,.csv,.yml,.yaml,.svg"
+            onChange={(e) => {
+              void handleFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <button
+            onClick={() => fileRef.current?.click()}
+            aria-label={t(lang, "attach")}
+            title={t(lang, "attach")}
+            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
+          >
+            <Paperclip size={14} />
+          </button>
+          <button
+            onClick={() => setShowGithub(true)}
+            aria-label={t(lang, "importGithub")}
+            title={t(lang, "importGithub")}
+            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
+          >
+            <Github size={14} />
+          </button>
           <textarea
             ref={taRef}
             value={input}
