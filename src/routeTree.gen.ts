@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
 import { Route as ApiCreditsRouteImport } from './routes/api/credits'
+import { Route as ApiGithubImportRouteImport } from './routes/api/github-import'
 import { Route as ApiPublishRouteImport } from './routes/api/publish'
 import { Route as AppSlugRouteImport } from './routes/app.$slug'
 import { Route as ApiPublicSslcommerzCancelRouteImport } from './routes/api/public/sslcommerz/cancel'
@@ -38,6 +39,11 @@ const ApiCheckoutRoute = ApiCheckoutRouteImport.update({
 const ApiCreditsRoute = ApiCreditsRouteImport.update({
   id: '/api/credits',
   path: '/api/credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiGithubImportRoute = ApiGithubImportRouteImport.update({
+  id: '/api/github-import',
+  path: '/api/github-import',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublishRoute = ApiPublishRouteImport.update({
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/github-import': typeof ApiGithubImportRoute
   '/api/publish': typeof ApiPublishRoute
   '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/github-import': typeof ApiGithubImportRoute
   '/api/publish': typeof ApiPublishRoute
   '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/api/checkout': typeof ApiCheckoutRoute
   '/api/credits': typeof ApiCreditsRoute
+  '/api/github-import': typeof ApiGithubImportRoute
   '/api/publish': typeof ApiPublishRoute
   '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/checkout'
     | '/api/credits'
+    | '/api/github-import'
     | '/api/publish'
     | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/checkout'
     | '/api/credits'
+    | '/api/github-import'
     | '/api/publish'
     | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/api/checkout'
     | '/api/credits'
+    | '/api/github-import'
     | '/api/publish'
     | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   ApiCheckoutRoute: typeof ApiCheckoutRoute
   ApiCreditsRoute: typeof ApiCreditsRoute
+  ApiGithubImportRoute: typeof ApiGithubImportRoute
   ApiPublishRoute: typeof ApiPublishRoute
   AppSlugRoute: typeof AppSlugRoute
   ApiPublicSslcommerzCancelRoute: typeof ApiPublicSslcommerzCancelRoute
@@ -190,6 +203,13 @@ declare module '@tanstack/react-router' {
       path: '/api/credits'
       fullPath: '/api/credits'
       preLoaderRoute: typeof ApiCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/github-import': {
+      id: '/api/github-import'
+      path: '/api/github-import'
+      fullPath: '/api/github-import'
+      preLoaderRoute: typeof ApiGithubImportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/publish': {
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   ApiCheckoutRoute: ApiCheckoutRoute,
   ApiCreditsRoute: ApiCreditsRoute,
+  ApiGithubImportRoute: ApiGithubImportRoute,
   ApiPublishRoute: ApiPublishRoute,
   AppSlugRoute: AppSlugRoute,
   ApiPublicSslcommerzCancelRoute: ApiPublicSslcommerzCancelRoute,

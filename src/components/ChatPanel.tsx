@@ -1,11 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Loader2, RefreshCw, RotateCcw, Sparkles, Square } from "lucide-react";
+import {
+  ArrowUp,
+  GitBranch,
+  Loader2,
+  Paperclip,
+  RefreshCw,
+  RotateCcw,
+  Sparkles,
+  Square,
+  X,
+} from "lucide-react";
 
 import { store, useStore } from "@/lib/store";
 import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
 import { PromptGallery } from "./PromptGallery";
+import { GithubImportDialog } from "./GithubImportDialog";
+
+const CODE_EXT = /\.(jsx?|tsx?|css|html|json)$/i;
+const TEXT_EXT = /\.(md|txt|csv|ya?ml|env|svg)$/i;
+const MAX_UPLOAD_BYTES = 200_000;
+
+type Attachment = { name: string; content: string };
 
 export function ChatPanel() {
   const messages = useStore((s) => s.messages);
@@ -15,9 +32,46 @@ export function ChatPanel() {
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
   const [canRetry, setCanRetry] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [showGithub, setShowGithub] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const handleFiles = async (list: FileList | null) => {
+    if (!list?.length) return;
+    const codeFiles: { path: string; content: string }[] = [];
+    const context: Attachment[] = [];
+    const notes: string[] = [];
+
+    for (const file of Array.from(list)) {
+      if (file.size > MAX_UPLOAD_BYTES) {
+        notes.push(`${file.name} ${t(lang, "fileTooBig")}`);
+        continue;
+      }
+      const isCode = CODE_EXT.test(file.name);
+      const isText = TEXT_EXT.test(file.name);
+      if (!isCode && !isText) {
+        notes.push(`${file.name} ${t(lang, "fileUnsupported")}`);
+        continue;
+      }
+      const content = await file.text();
+      if (isCode) codeFiles.push({ path: `/${file.name}`, content });
+      else context.push({ name: file.name, content });
+    }
+
+    if (codeFiles.length) {
+      store.importFiles(codeFiles, "Uploaded files");
+      notes.push(
+        lang === "bn"
+          ? `${codeFiles.length}টি কোড ফাইল প্রিভিউতে যোগ হয়েছে।`
+          : `Added ${codeFiles.length} code file(s) to the preview.`,
+      );
+    }
+    if (context.length) setAttachments((prev) => [...prev, ...context].slice(-5));
+    if (notes.length) store.addMessage("assistant", notes.join("\n"));
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -45,8 +99,17 @@ export function ChatPanel() {
   };
 
   const send = async (text: string, opts?: { skipUserMessage?: boolean }) => {
-    const prompt = text.trim();
+    let prompt = text.trim();
     if (!prompt || isLoading) return;
+
+    // Attached reference files travel with the prompt as context.
+    if (attachments.length && !opts?.skipUserMessage) {
+      const blocks = attachments
+        .map((a) => `File: ${a.name}\n\`\`\`\n${a.content.slice(0, 6000)}\n\`\`\``)
+        .join("\n\n");
+      prompt = `${prompt}\n\n${blocks}`;
+      setAttachments([]);
+    }
 
     // `null` means the balance is still loading — the server checks credits
     // anyway, so don't block the first tap with a false "out of credits".
@@ -272,7 +335,57 @@ export function ChatPanel() {
       </div>
 
       <div className="border-t border-border p-3">
+        {attachments.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {attachments.map((a, i) => (
+              <span
+                key={`${a.name}-${i}`}
+                className="flex items-center gap-1.5 rounded-md border border-border bg-ink-800/70 px-2 py-1 text-[11px] text-foreground/70"
+              >
+                <Paperclip size={10} className="text-primary" />
+                {a.name}
+                <button
+                  onClick={() =>
+                    setAttachments((prev) => prev.filter((_, idx) => idx !== i))
+                  }
+                  aria-label={t(lang, "removeFile")}
+                  className="press text-muted-foreground hover:text-foreground"
+                >
+                  <X size={10} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-end gap-2 rounded-xl border border-border bg-ink-800/60 p-2 transition-colors duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-primary/15">
+          <input
+            ref={fileRef}
+            type="file"
+            multiple
+            hidden
+            accept=".js,.jsx,.ts,.tsx,.css,.html,.json,.md,.txt,.csv,.yml,.yaml,.svg"
+            onChange={(e) => {
+              void handleFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+          <button
+            onClick={() => fileRef.current?.click()}
+            aria-label={t(lang, "attach")}
+            title={t(lang, "attach")}
+            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
+          >
+            <Paperclip size={14} />
+          </button>
+          <button
+            onClick={() => setShowGithub(true)}
+            aria-label={t(lang, "importGithub")}
+            title={t(lang, "importGithub")}
+            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
+          >
+            <GitBranch size={14} />
+          </button>
           <textarea
             ref={taRef}
             value={input}
@@ -311,6 +424,12 @@ export function ChatPanel() {
           {t(lang, "disclaimer")}
         </p>
       </div>
+
+      <GithubImportDialog
+        open={showGithub}
+        onClose={() => setShowGithub(false)}
+        onImported={(summary) => store.addMessage("assistant", summary)}
+      />
     </div>
   );
 }
