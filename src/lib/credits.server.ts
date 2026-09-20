@@ -73,16 +73,17 @@ export async function getBalance(
   return created.credits;
 }
 
-/** Spend one credit. Returns null when the device has none left. */
+/**
+ * Spend one credit atomically. The database decrements only when the balance
+ * is positive, inside a single row lock, so concurrent requests can never
+ * both pass the check. Returns the new balance, or null when none was left.
+ */
 export async function spendCredit(deviceId: string): Promise<number | null> {
-  const balance = await getBalance(deviceId);
-  if (balance <= 0) return null;
-  const { data, error } = await supabaseAdmin.rpc("add_credits", {
+  const { data, error } = await supabaseAdmin.rpc("spend_credit", {
     _device_id: deviceId,
-    _amount: -1,
   });
   if (error) throw new Error(error.message);
-  return data as number;
+  return (data as number | null) ?? null;
 }
 
 export async function addCredits(deviceId: string, amount: number): Promise<number> {
