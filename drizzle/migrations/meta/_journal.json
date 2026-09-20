@@ -29,6 +29,13 @@
       "when": 1789685957793,
       "tag": "0003_device_grant_throttle_and_column_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789932705160,
+      "tag": "0004_published_apps_deny_client_writes",
+      "breakpoints": true
     }
   ]
 }
