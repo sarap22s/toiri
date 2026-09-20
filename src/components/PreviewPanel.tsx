@@ -195,11 +195,19 @@ export function PreviewPanel() {
               ))
             )}
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
+      <AnimatePresence>
       {showShare && (
-        <div className="absolute right-3 top-14 z-30 w-80 overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-xl backdrop-blur">
+        <motion.div
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-3 top-14 z-30 w-80 origin-top-right overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-2xl backdrop-blur"
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11.5px] font-semibold text-foreground/60">
               {t(lang, "shareTitle")}
