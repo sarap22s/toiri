@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Coins, CreditCard, Loader2, Smartphone, X } from "lucide-react";
 import { store, useStore } from "@/lib/store";
@@ -12,6 +12,15 @@ export function PricingModal() {
   const [error, setError] = useState<string | null>(null);
 
   const close = () => store.setShowPricing(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const buy = async (packId: string) => {
     setError(null);
