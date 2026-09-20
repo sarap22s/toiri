@@ -373,11 +373,13 @@ function IconBtn({
   onClick,
   title,
   children,
+  active,
   "data-menu": dataMenu,
 }: {
   onClick: () => void;
   title: string;
   children: ReactNode;
+  active?: boolean;
   "data-menu"?: boolean;
 }) {
   return (
@@ -386,7 +388,12 @@ function IconBtn({
       title={title}
       {...(dataMenu ? { "data-panel-menu-trigger": "" } : {})}
       aria-label={title}
-      className="press flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+      {...(active === undefined ? {} : { "aria-pressed": active })}
+      className={`press flex h-7 w-7 items-center justify-center rounded-lg ${
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+      }`}
     >
       {children}
     </button>
