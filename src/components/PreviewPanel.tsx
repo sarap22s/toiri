@@ -100,16 +100,22 @@ export function PreviewPanel() {
   };
 
   return (
-    <div className="glass relative flex h-full flex-col overflow-hidden rounded-2xl">
+    <div className="panel relative flex h-full flex-col overflow-hidden rounded-2xl">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
         <div className="flex min-w-0 items-center gap-2">
-          <Monitor size={14} className="shrink-0 text-foreground/40" />
-          <span className="truncate font-display text-[13px] font-semibold text-foreground/80">
+          <Monitor size={13} className="shrink-0 text-muted-foreground" />
+          <span className="truncate font-display text-[12.5px] font-semibold tracking-tight text-foreground/80">
             {t(lang, "previewTitle")}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <IconBtn onClick={() => setShowHistory((v) => !v)} title={t(lang, "history")}>
+          <IconBtn
+            onClick={() => {
+              setShowShare(false);
+              setShowHistory((v) => !v);
+            }}
+            title={t(lang, "history")}
+          >
             <History size={13} />
           </IconBtn>
           <IconBtn onClick={copy} title={t(lang, "copyCode")}>
@@ -121,7 +127,7 @@ export function PreviewPanel() {
           <button
             onClick={publish}
             disabled={publishing}
-            className="ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime transition hover:bg-lime/25 disabled:opacity-60"
+            className="press ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime hover:bg-lime/25 disabled:opacity-60"
           >
             {publishing ? (
               <Loader2 size={13} className="animate-spin" />
