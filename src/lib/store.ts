@@ -172,6 +172,13 @@ export const store = {
     set({ messages: [...state.messages, message] });
     return message;
   },
+  /** Drops trailing assistant replies and returns the last user prompt. */
+  rewindToLastUser(): string | null {
+    const idx = [...state.messages].map((m) => m.role).lastIndexOf("user");
+    if (idx === -1) return null;
+    set({ messages: state.messages.slice(0, idx + 1) });
+    return state.messages[idx]?.content ?? null;
+  },
   updateMessage(id: string, content: string) {
     set({
       messages: state.messages.map((m) => (m.id === id ? { ...m, content } : m)),

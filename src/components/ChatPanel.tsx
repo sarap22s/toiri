@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowUp, Loader2, RefreshCw, RotateCcw, Sparkles, Square } from "lucide-react";
+
 import { store, useStore } from "@/lib/store";
 import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
@@ -13,7 +14,10 @@ export function ChatPanel() {
   const credits = useStore((s) => s.credits);
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
+  const [canRetry, setCanRetry] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -22,7 +26,25 @@ export function ChatPanel() {
     });
   }, [messages, isLoading]);
 
-  const send = async (text: string) => {
+  // Grow the composer with the text, up to the max height.
+  useEffect(() => {
+    const el = taRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [input]);
+
+  const stop = () => {
+    abortRef.current?.abort();
+  };
+
+  const retry = () => {
+    const prompt = store.rewindToLastUser();
+    if (!prompt) return;
+    void send(prompt, { skipUserMessage: true });
+  };
+
+  const send = async (text: string, opts?: { skipUserMessage?: boolean }) => {
     const prompt = text.trim();
     if (!prompt || isLoading) return;
 
@@ -35,10 +57,18 @@ export function ChatPanel() {
     }
 
     setInput("");
-    store.addMessage("user", prompt);
+    setCanRetry(false);
+    if (!opts?.skipUserMessage) store.addMessage("user", prompt);
     store.setLoading(true);
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        throw new Error(t(lang, "offlineError"));
+      }
+
       const history = store
         .get()
         .messages.map((m) => ({ role: m.role, content: m.content }));
@@ -47,6 +77,7 @@ export function ChatPanel() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages: history, deviceId: store.get().deviceId }),
+        signal: controller.signal,
       });
 
       // Non-streaming responses are always errors (bad request, out of credits).
@@ -124,9 +155,23 @@ export function ChatPanel() {
         if (id) setLastFile((prev) => ({ ...prev, [id]: label }));
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : t(lang, "genericError");
-      store.addMessage("assistant", `⚠️ ${message}`);
+      if (err instanceof DOMException && err.name === "AbortError") {
+        store.addMessage("assistant", t(lang, "stopped"));
+        setCanRetry(true);
+      } else {
+        const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+        const message = offline
+          ? t(lang, "offlineError")
+          : err instanceof TypeError
+            ? t(lang, "networkError")
+            : err instanceof Error
+              ? err.message
+              : t(lang, "genericError");
+        store.addMessage("assistant", `⚠️ ${message}`);
+        setCanRetry(true);
+      }
     } finally {
+      abortRef.current = null;
       store.setLoading(false);
     }
   };
@@ -203,13 +248,33 @@ export function ChatPanel() {
             <span className="shimmer-text text-[12.5px] font-medium">
               {t(lang, "thinking")}
             </span>
+            <button
+              onClick={stop}
+              className="press ml-1 flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+            >
+              <Square size={9} className="fill-current" />
+              {t(lang, "stop")}
+            </button>
           </motion.div>
+        )}
+
+        {!isLoading && canRetry && (
+          <div className="px-1">
+            <button
+              onClick={retry}
+              className="press flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11.5px] font-medium text-foreground/75 hover:bg-foreground/5 hover:text-foreground"
+            >
+              <RefreshCw size={11} />
+              {t(lang, "retry")}
+            </button>
+          </div>
         )}
       </div>
 
       <div className="border-t border-border p-3">
         <div className="flex items-end gap-2 rounded-xl border border-border bg-ink-800/60 p-2 transition-colors duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-primary/15">
           <textarea
+            ref={taRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -220,21 +285,27 @@ export function ChatPanel() {
             }}
             rows={1}
             placeholder={t(lang, "composerPlaceholder")}
-            disabled={isLoading}
-            className="max-h-32 flex-1 resize-none bg-transparent px-2 py-1.5 text-[13.5px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none disabled:opacity-50"
+            className="max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-1.5 text-[13.5px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
           />
-          <button
-            onClick={() => send(input)}
-            disabled={isLoading || !input.trim()}
-            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label="Send"
-          >
-            {isLoading ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
+          {isLoading ? (
+            <button
+              onClick={stop}
+              className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/80 hover:bg-foreground/10"
+              aria-label={t(lang, "stop")}
+              title={t(lang, "stop")}
+            >
+              <Square size={12} className="fill-current" />
+            </button>
+          ) : (
+            <button
+              onClick={() => send(input)}
+              disabled={!input.trim()}
+              className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Send"
+            >
               <ArrowUp size={16} />
-            )}
-          </button>
+            </button>
+          )}
         </div>
         <p className="mt-2 px-1 text-center text-[10.5px] text-foreground/25">
           {t(lang, "disclaimer")}

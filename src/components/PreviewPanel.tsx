@@ -1,4 +1,12 @@
-import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ClientOnly } from "@tanstack/react-router";
 import {
@@ -31,6 +39,36 @@ export function PreviewPanel() {
   const [publishError, setPublishError] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Close the History / Share menus on outside click or Escape.
+  useEffect(() => {
+    if (!showHistory && !showShare) return;
+    const closeAll = () => {
+      setShowHistory(false);
+      setShowShare(false);
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      const el = rootRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) return closeAll();
+      if (
+        e.target instanceof Element &&
+        !e.target.closest("[data-panel-menu]") &&
+        !e.target.closest("[data-panel-menu-trigger]")
+      ) {
+        closeAll();
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeAll();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [showHistory, showShare]);
 
   const code = files["/App.js"] ?? "";
   const shareUrl =
@@ -100,7 +138,10 @@ export function PreviewPanel() {
   };
 
   return (
-    <div className="panel relative flex h-full flex-col overflow-hidden rounded-2xl">
+    <div
+      ref={rootRef}
+      className="panel relative flex h-full flex-col overflow-hidden rounded-2xl"
+    >
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
         <div className="flex min-w-0 items-center gap-2">
           <Monitor size={13} className="shrink-0 text-muted-foreground" />
@@ -115,6 +156,7 @@ export function PreviewPanel() {
               setShowHistory((v) => !v);
             }}
             title={t(lang, "history")}
+            data-menu
           >
             <History size={13} />
           </IconBtn>
@@ -127,6 +169,7 @@ export function PreviewPanel() {
           <button
             onClick={publish}
             disabled={publishing}
+            data-panel-menu-trigger
             className="press ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime hover:bg-lime/25 disabled:opacity-60"
           >
             {publishing ? (
@@ -160,6 +203,7 @@ export function PreviewPanel() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.98 }}
           transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          data-panel-menu
           className="absolute right-3 top-14 z-30 w-72 origin-top-right overflow-hidden rounded-xl border border-border bg-ink-900/95 shadow-2xl backdrop-blur"
         >
           <div className="border-b border-border px-3 py-2 text-[11.5px] font-semibold text-foreground/60">
@@ -206,6 +250,7 @@ export function PreviewPanel() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -4, scale: 0.98 }}
           transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          data-panel-menu
           className="absolute right-3 top-14 z-30 w-80 origin-top-right overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-2xl backdrop-blur"
         >
           <div className="flex items-center justify-between gap-2">
@@ -274,15 +319,18 @@ function IconBtn({
   onClick,
   title,
   children,
+  "data-menu": dataMenu,
 }: {
   onClick: () => void;
   title: string;
   children: ReactNode;
+  "data-menu"?: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       title={title}
+      {...(dataMenu ? { "data-panel-menu-trigger": "" } : {})}
       aria-label={title}
       className="press flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
     >
