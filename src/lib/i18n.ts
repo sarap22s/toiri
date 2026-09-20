@@ -43,6 +43,18 @@ export const STRINGS: Record<Lang, Dict> = {
     shareHint: "Anyone with this link can open your app.",
     copyLink: "Copy link",
     openLink: "Open",
+    attach: "Attach files",
+    importGithub: "Import from GitHub",
+    githubTitle: "Import from GitHub",
+    githubHint:
+      "Paste a public repository link. Toiri pulls the code files in so you can preview and change them by chatting.",
+    githubNote: "Public repositories only for now. Large repos are trimmed to the main code files.",
+    importRepo: "Import repository",
+    importing: "Importing…",
+    attachedFiles: "Attached",
+    removeFile: "Remove",
+    fileTooBig: "is too large (max 200 KB).",
+    fileUnsupported: "is not a text or code file.",
     pickCategory: "Pick what you want to build",
     promptHint:
       "Tap any idea — it sends a full, detailed description, so you don't have to know the steps. You can change anything afterwards by chatting.",

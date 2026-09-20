@@ -223,6 +223,31 @@ export const store = {
       versions: [...state.versions, version].slice(-20),
     });
   },
+  /** Adds a batch of files (uploaded or imported from GitHub) to the project. */
+  importFiles(incoming: { path: string; content: string }[], label?: string) {
+    if (!incoming.length) return;
+    const files = { ...state.files };
+    for (const f of incoming) {
+      const path = f.path.startsWith("/") ? f.path : `/${f.path}`;
+      files[path] = f.content;
+    }
+    const preferred =
+      incoming.find((f) => /App\.(jsx?|tsx?)$/i.test(f.path))?.path ??
+      incoming.find((f) => /\.(jsx|tsx)$/i.test(f.path))?.path ??
+      incoming[0]!.path;
+    const activeFile = preferred.startsWith("/") ? preferred : `/${preferred}`;
+    const version: Version = {
+      id: uid(),
+      label: (label ?? "Imported files").slice(0, 70),
+      code: files["/App.js"] ?? state.files["/App.js"] ?? "",
+      ts: Date.now(),
+    };
+    set({
+      files,
+      activeFile,
+      versions: [...state.versions, version].slice(-20),
+    });
+  },
   restoreVersion(id: string) {
     const version = state.versions.find((v) => v.id === id);
     if (!version) return;
