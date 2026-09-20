@@ -34,7 +34,8 @@ export function PreviewPanel() {
   const activeFile = useStore((s) => s.activeFile);
   const versions = useStore((s) => s.versions);
   const lang = useStore((s) => s.lang);
-  const [view, setView] = useState<"preview" | "code">("preview");
+  const [view, setView] = useState<"preview" | "code" | "seo">("preview");
+  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const publishedSlug = useStore((s) => s.publishedSlug);
@@ -195,7 +196,31 @@ export function PreviewPanel() {
               icon={<Code2 size={13} />}
               label={t(lang, "previewCode")}
             />
+            <ToggleBtn
+              active={view === "seo"}
+              onClick={() => setView("seo")}
+              icon={<Search size={13} />}
+              label={t(lang, "previewSeo")}
+            />
           </div>
+          {view === "preview" && (
+            <div className="ml-1 hidden items-center gap-1 rounded-lg bg-ink-800/70 p-1 sm:flex">
+              <IconBtn
+                onClick={() => setDevice("desktop")}
+                title={t(lang, "deviceDesktop")}
+                active={device === "desktop"}
+              >
+                <Monitor size={13} />
+              </IconBtn>
+              <IconBtn
+                onClick={() => setDevice("mobile")}
+                title={t(lang, "deviceMobile")}
+                active={device === "mobile"}
+              >
+                <Smartphone size={13} />
+              </IconBtn>
+            </div>
+          )}
         </div>
       </div>
 
