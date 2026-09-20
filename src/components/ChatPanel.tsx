@@ -178,7 +178,7 @@ export function ChatPanel() {
               <PromptGallery onPick={(p) => send(p)} />
               <button
                 onClick={() => store.loadDemo()}
-                className="mt-1 rounded-xl border border-accent/30 bg-accent/5 px-3.5 py-2.5 text-[12.5px] font-medium text-accent-foreground/90 transition hover:bg-accent/10"
+                className="press mt-1 rounded-xl border border-primary/25 bg-primary/[0.08] px-3.5 py-2.5 text-[12.5px] font-medium text-foreground/85 hover:bg-primary/15"
               >
                 {t(lang, "trySample")}
               </button>
@@ -208,7 +208,7 @@ export function ChatPanel() {
       </div>
 
       <div className="border-t border-border p-3">
-        <div className="accent-border flex items-end gap-2 rounded-xl bg-ink-800/60 p-2">
+        <div className="flex items-end gap-2 rounded-xl border border-border bg-ink-800/60 p-2 transition-colors duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-primary/15">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -221,12 +221,12 @@ export function ChatPanel() {
             rows={1}
             placeholder={t(lang, "composerPlaceholder")}
             disabled={isLoading}
-            className="max-h-32 flex-1 resize-none bg-transparent px-2 py-1.5 text-[13.5px] text-foreground placeholder:text-foreground/30 focus:outline-none disabled:opacity-50"
+            className="max-h-32 flex-1 resize-none bg-transparent px-2 py-1.5 text-[13.5px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none disabled:opacity-50"
           />
           <button
             onClick={() => send(input)}
             disabled={isLoading || !input.trim()}
-            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground transition hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
+            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
             aria-label="Send"
           >
             {isLoading ? (
