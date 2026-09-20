@@ -99,8 +99,17 @@ export function ChatPanel() {
   };
 
   const send = async (text: string, opts?: { skipUserMessage?: boolean }) => {
-    const prompt = text.trim();
+    let prompt = text.trim();
     if (!prompt || isLoading) return;
+
+    // Attached reference files travel with the prompt as context.
+    if (attachments.length && !opts?.skipUserMessage) {
+      const blocks = attachments
+        .map((a) => `File: ${a.name}\n\`\`\`\n${a.content.slice(0, 6000)}\n\`\`\``)
+        .join("\n\n");
+      prompt = `${prompt}\n\n${blocks}`;
+      setAttachments([]);
+    }
 
     // `null` means the balance is still loading — the server checks credits
     // anyway, so don't block the first tap with a false "out of credits".
