@@ -19,6 +19,7 @@ export const Route = createFileRoute("/api/chat")({
           isValidDeviceId,
           getBalance,
           spendCredit,
+          addCredits,
           clientIpHash,
           FreeCreditLimitError,
         } = await import("@/lib/credits.server");
@@ -43,9 +44,8 @@ export const Route = createFileRoute("/api/chat")({
         }
 
         // The balance lives server-side, so the browser can never grant itself credits.
-        let balance: number;
         try {
-          balance = await getBalance(deviceId, { ipHash: clientIpHash(request) });
+          await getBalance(deviceId, { ipHash: clientIpHash(request) });
         } catch (err) {
           if (err instanceof FreeCreditLimitError) {
             return Response.json({ error: err.message, credits: 0 }, { status: 402 });
@@ -53,7 +53,18 @@ export const Route = createFileRoute("/api/chat")({
           console.error("balance lookup failed", err);
           return Response.json({ error: "Could not load credits" }, { status: 500 });
         }
-        if (balance <= 0) {
+
+        // Charge BEFORE any AI work, as one atomic decrement-if-positive.
+        // Concurrent requests can no longer all pass a shared balance check:
+        // the database serializes them and only credits > 0 get through.
+        let spent: number | null;
+        try {
+          spent = await spendCredit(deviceId);
+        } catch (err) {
+          console.error("credit spend failed", err);
+          return Response.json({ error: "Could not load credits" }, { status: 500 });
+        }
+        if (spent === null) {
           return Response.json(
             { error: "You are out of credits.", credits: 0 },
             { status: 402 },
@@ -99,12 +110,17 @@ export const Route = createFileRoute("/api/chat")({
                   (i) => typeof i?.path === "string" && typeof i?.content === "string",
                 );
 
-              // Charge only after a successful generation.
-              const remaining = await spendCredit(deviceId);
+              // The credit was already charged atomically up front.
               controller.enqueue(
-                line({ type: "done", fileWrites, credits: remaining ?? 0 }),
+                line({ type: "done", fileWrites, credits: spent }),
               );
             } catch (err) {
+              // Generation failed after charging — give the credit back.
+              try {
+                await addCredits(deviceId, 1);
+              } catch (refundErr) {
+                console.error("credit refund failed", refundErr);
+              }
               const e = err as { statusCode?: number; message?: string };
               const status = e?.statusCode ?? 500;
               const message =

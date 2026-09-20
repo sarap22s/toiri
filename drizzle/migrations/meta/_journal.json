@@ -36,6 +36,13 @@
       "when": 1789932705160,
       "tag": "0004_published_apps_deny_client_writes",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789939886696,
+      "tag": "0005_atomic_spend_credit",
+      "breakpoints": true
     }
   ]
 }
