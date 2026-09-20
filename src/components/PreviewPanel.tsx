@@ -254,8 +254,10 @@ export function PreviewPanel() {
               </div>
             </>
           ) : null}
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
+
 
       <div className="flex-1 overflow-hidden bg-ink-950">
         <ClientOnly fallback={null}>
@@ -282,7 +284,7 @@ function IconBtn({
       onClick={onClick}
       title={title}
       aria-label={title}
-      className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/45 transition hover:bg-foreground/5 hover:text-foreground/80"
+      className="press flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
     >
       {children}
     </button>
@@ -303,10 +305,11 @@ function ToggleBtn({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium transition ${
+      aria-pressed={active}
+      className={`press flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
-          : "text-foreground/45 hover:text-foreground/75"
+          : "text-muted-foreground hover:text-foreground"
       }`}
     >
       {icon}
