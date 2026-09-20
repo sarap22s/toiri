@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Github, Loader2, X } from "lucide-react";
+import { GitBranch, Loader2, X } from "lucide-react";
 
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
@@ -81,7 +81,7 @@ export function GithubImportDialog({
           >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2">
-                <Github size={16} className="text-primary" />
+                <GitBranch size={16} className="text-primary" />
                 <h2 className="font-display text-[15px] font-bold text-foreground">
                   {t(lang, "githubTitle")}
                 </h2>

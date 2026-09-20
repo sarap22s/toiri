@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUp,
-  Github,
+  GitBranch,
   Loader2,
   Paperclip,
   RefreshCw,
@@ -384,7 +384,7 @@ export function ChatPanel() {
             title={t(lang, "importGithub")}
             className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
           >
-            <Github size={14} />
+            <GitBranch size={14} />
           </button>
           <textarea
             ref={taRef}
