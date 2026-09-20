@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ClientOnly } from "@tanstack/react-router";
 import {
   Check,
@@ -99,16 +100,22 @@ export function PreviewPanel() {
   };
 
   return (
-    <div className="glass relative flex h-full flex-col overflow-hidden rounded-2xl">
+    <div className="panel relative flex h-full flex-col overflow-hidden rounded-2xl">
       <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2.5">
         <div className="flex min-w-0 items-center gap-2">
-          <Monitor size={14} className="shrink-0 text-foreground/40" />
-          <span className="truncate font-display text-[13px] font-semibold text-foreground/80">
+          <Monitor size={13} className="shrink-0 text-muted-foreground" />
+          <span className="truncate font-display text-[12.5px] font-semibold tracking-tight text-foreground/80">
             {t(lang, "previewTitle")}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          <IconBtn onClick={() => setShowHistory((v) => !v)} title={t(lang, "history")}>
+          <IconBtn
+            onClick={() => {
+              setShowShare(false);
+              setShowHistory((v) => !v);
+            }}
+            title={t(lang, "history")}
+          >
             <History size={13} />
           </IconBtn>
           <IconBtn onClick={copy} title={t(lang, "copyCode")}>
@@ -120,7 +127,7 @@ export function PreviewPanel() {
           <button
             onClick={publish}
             disabled={publishing}
-            className="ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime transition hover:bg-lime/25 disabled:opacity-60"
+            className="press ml-1 flex items-center gap-1.5 rounded-lg bg-lime/15 px-2.5 py-1.5 text-[12px] font-semibold text-lime hover:bg-lime/25 disabled:opacity-60"
           >
             {publishing ? (
               <Loader2 size={13} className="animate-spin" />
@@ -146,8 +153,15 @@ export function PreviewPanel() {
         </div>
       </div>
 
+      <AnimatePresence>
       {showHistory && (
-        <div className="absolute right-3 top-14 z-30 w-72 overflow-hidden rounded-xl border border-border bg-ink-900/95 shadow-xl backdrop-blur">
+        <motion.div
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-3 top-14 z-30 w-72 origin-top-right overflow-hidden rounded-xl border border-border bg-ink-900/95 shadow-2xl backdrop-blur"
+        >
           <div className="border-b border-border px-3 py-2 text-[11.5px] font-semibold text-foreground/60">
             {t(lang, "versionsTitle")}
           </div>
@@ -181,11 +195,19 @@ export function PreviewPanel() {
               ))
             )}
           </div>
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
 
+      <AnimatePresence>
       {showShare && (
-        <div className="absolute right-3 top-14 z-30 w-80 overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-xl backdrop-blur">
+        <motion.div
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-3 top-14 z-30 w-80 origin-top-right overflow-hidden rounded-xl border border-border bg-ink-900/95 p-3 shadow-2xl backdrop-blur"
+        >
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11.5px] font-semibold text-foreground/60">
               {t(lang, "shareTitle")}
@@ -232,8 +254,10 @@ export function PreviewPanel() {
               </div>
             </>
           ) : null}
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
+
 
       <div className="flex-1 overflow-hidden bg-ink-950">
         <ClientOnly fallback={null}>
@@ -260,7 +284,7 @@ function IconBtn({
       onClick={onClick}
       title={title}
       aria-label={title}
-      className="flex h-7 w-7 items-center justify-center rounded-lg text-foreground/45 transition hover:bg-foreground/5 hover:text-foreground/80"
+      className="press flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
     >
       {children}
     </button>
@@ -281,10 +305,11 @@ function ToggleBtn({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium transition ${
+      aria-pressed={active}
+      className={`press flex items-center gap-1.5 rounded-md px-2.5 py-1 text-[12px] font-medium ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
-          : "text-foreground/45 hover:text-foreground/75"
+          : "text-muted-foreground hover:text-foreground"
       }`}
     >
       {icon}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Coins, CreditCard, Loader2, Smartphone, X } from "lucide-react";
 import { store, useStore } from "@/lib/store";
@@ -12,6 +12,15 @@ export function PricingModal() {
   const [error, setError] = useState<string | null>(null);
 
   const close = () => store.setShowPricing(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const buy = async (packId: string) => {
     setError(null);
@@ -39,16 +48,19 @@ export function PricingModal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+          transition={{ duration: 0.18 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4 backdrop-blur-sm"
           onClick={close}
         >
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            role="dialog"
+            aria-modal="true"
+            initial={{ opacity: 0, y: 14, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 420, damping: 32, mass: 0.8 }}
             onClick={(e) => e.stopPropagation()}
-            className="glass accent-border w-full max-w-lg rounded-2xl p-6"
+            className="panel w-full max-w-lg rounded-2xl p-6"
           >
             <div className="mb-1 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -59,7 +71,7 @@ export function PricingModal() {
               </div>
               <button
                 onClick={close}
-                className="rounded-lg p-1.5 text-foreground/40 transition hover:bg-foreground/5 hover:text-foreground"
+                className="press rounded-lg p-1.5 text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
                 aria-label={t(lang, "close")}
               >
                 <X size={16} />
@@ -73,7 +85,7 @@ export function PricingModal() {
               {CREDIT_PACKS.map((pack) => (
                 <div
                   key={pack.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-ink-800/50 px-4 py-3"
+                  className="flex items-center justify-between rounded-xl border border-border bg-ink-800/50 px-4 py-3 transition-colors duration-200 hover:border-primary/30"
                 >
                   <div>
                     <div className="flex items-baseline gap-2">
@@ -88,7 +100,7 @@ export function PricingModal() {
                   <button
                     onClick={() => buy(pack.id)}
                     disabled={busy !== null}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-semibold text-primary-foreground transition hover:bg-primary/85 disabled:opacity-40"
+                    className="press flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-[12.5px] font-semibold tabular-nums text-primary-foreground hover:bg-primary/85 disabled:opacity-40"
                   >
                     {busy === pack.id && <Loader2 size={12} className="animate-spin" />}
                     ৳{pack.amountBDT}

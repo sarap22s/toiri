@@ -202,10 +202,11 @@ function TabBtn({
   return (
     <button
       onClick={onClick}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold transition ${
+      aria-pressed={active}
+      className={`press flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
-          : "text-foreground/45 hover:text-foreground/75"
+          : "text-muted-foreground hover:text-foreground"
       }`}
     >
       {icon}
