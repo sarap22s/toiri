@@ -68,6 +68,16 @@ export function PreviewPanel() {
     return out;
   }, [files, activeFile]);
 
+  // Sandpack keeps its first file set, so remount it whenever the code changes.
+  const filesKey = useMemo(() => {
+    let h = 0;
+    const src = Object.entries(files)
+      .map(([p, c]) => p + c)
+      .join("\n");
+    for (let i = 0; i < src.length; i++) h = (h * 31 + src.charCodeAt(i)) | 0;
+    return String(h);
+  }, [files]);
+
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -228,7 +238,7 @@ export function PreviewPanel() {
       <div className="flex-1 overflow-hidden bg-ink-950">
         <ClientOnly fallback={null}>
           <Suspense fallback={null}>
-            <Sandbox view={view} files={sandpackFiles} />
+            <Sandbox key={filesKey} view={view} files={sandpackFiles} />
           </Suspense>
         </ClientOnly>
       </div>
