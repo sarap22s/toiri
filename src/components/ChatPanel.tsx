@@ -14,7 +14,10 @@ export function ChatPanel() {
   const credits = useStore((s) => s.credits);
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
+  const [canRetry, setCanRetry] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -23,7 +26,25 @@ export function ChatPanel() {
     });
   }, [messages, isLoading]);
 
-  const send = async (text: string) => {
+  // Grow the composer with the text, up to the max height.
+  useEffect(() => {
+    const el = taRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  }, [input]);
+
+  const stop = () => {
+    abortRef.current?.abort();
+  };
+
+  const retry = () => {
+    const prompt = store.rewindToLastUser();
+    if (!prompt) return;
+    void send(prompt, { skipUserMessage: true });
+  };
+
+  const send = async (text: string, opts?: { skipUserMessage?: boolean }) => {
     const prompt = text.trim();
     if (!prompt || isLoading) return;
 
