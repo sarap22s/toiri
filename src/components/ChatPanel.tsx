@@ -57,10 +57,18 @@ export function ChatPanel() {
     }
 
     setInput("");
-    store.addMessage("user", prompt);
+    setCanRetry(false);
+    if (!opts?.skipUserMessage) store.addMessage("user", prompt);
     store.setLoading(true);
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
+      if (typeof navigator !== "undefined" && navigator.onLine === false) {
+        throw new Error(t(lang, "offlineError"));
+      }
+
       const history = store
         .get()
         .messages.map((m) => ({ role: m.role, content: m.content }));
@@ -69,6 +77,7 @@ export function ChatPanel() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ messages: history, deviceId: store.get().deviceId }),
+        signal: controller.signal,
       });
 
       // Non-streaming responses are always errors (bad request, out of credits).
