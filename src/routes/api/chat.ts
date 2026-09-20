@@ -19,6 +19,7 @@ export const Route = createFileRoute("/api/chat")({
           isValidDeviceId,
           getBalance,
           spendCredit,
+          addCredits,
           clientIpHash,
           FreeCreditLimitError,
         } = await import("@/lib/credits.server");
