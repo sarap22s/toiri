@@ -132,11 +132,11 @@ export function ChatPanel() {
   };
 
   return (
-    <div className="glass flex h-full flex-col overflow-hidden rounded-2xl">
+    <div className="panel flex h-full flex-col overflow-hidden rounded-2xl">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Sparkles size={14} className="text-primary" />
-          <span className="font-display text-[13px] font-semibold text-foreground/80">
+          <Sparkles size={13} className="text-primary" />
+          <span className="font-display text-[12.5px] font-semibold tracking-tight text-foreground/80">
             {t(lang, "assistantLabel")}
           </span>
         </div>
@@ -146,7 +146,7 @@ export function ChatPanel() {
               store.reset();
               setLastFile({});
             }}
-            className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-foreground/40 transition hover:bg-foreground/5 hover:text-foreground/70"
+            className="press flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
           >
             <RotateCcw size={11} />
             {t(lang, "newChat")}
