@@ -238,7 +238,7 @@ export function PreviewPanel() {
       <div className="flex-1 overflow-hidden bg-ink-950">
         <ClientOnly fallback={null}>
           <Suspense fallback={null}>
-            <Sandbox view={view} files={sandpackFiles} />
+            <Sandbox key={filesKey} view={view} files={sandpackFiles} />
           </Suspense>
         </ClientOnly>
       </div>
