@@ -1,11 +1,28 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Loader2, RefreshCw, RotateCcw, Sparkles, Square } from "lucide-react";
+import {
+  ArrowUp,
+  Github,
+  Loader2,
+  Paperclip,
+  RefreshCw,
+  RotateCcw,
+  Sparkles,
+  Square,
+  X,
+} from "lucide-react";
 
 import { store, useStore } from "@/lib/store";
 import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
 import { PromptGallery } from "./PromptGallery";
+import { GithubImportDialog } from "./GithubImportDialog";
+
+const CODE_EXT = /\.(jsx?|tsx?|css|html|json)$/i;
+const TEXT_EXT = /\.(md|txt|csv|ya?ml|env|svg)$/i;
+const MAX_UPLOAD_BYTES = 200_000;
+
+type Attachment = { name: string; content: string };
 
 export function ChatPanel() {
   const messages = useStore((s) => s.messages);
@@ -15,9 +32,46 @@ export function ChatPanel() {
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
   const [canRetry, setCanRetry] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [showGithub, setShowGithub] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  const handleFiles = async (list: FileList | null) => {
+    if (!list?.length) return;
+    const codeFiles: { path: string; content: string }[] = [];
+    const context: Attachment[] = [];
+    const notes: string[] = [];
+
+    for (const file of Array.from(list)) {
+      if (file.size > MAX_UPLOAD_BYTES) {
+        notes.push(`${file.name} ${t(lang, "fileTooBig")}`);
+        continue;
+      }
+      const isCode = CODE_EXT.test(file.name);
+      const isText = TEXT_EXT.test(file.name);
+      if (!isCode && !isText) {
+        notes.push(`${file.name} ${t(lang, "fileUnsupported")}`);
+        continue;
+      }
+      const content = await file.text();
+      if (isCode) codeFiles.push({ path: `/${file.name}`, content });
+      else context.push({ name: file.name, content });
+    }
+
+    if (codeFiles.length) {
+      store.importFiles(codeFiles, "Uploaded files");
+      notes.push(
+        lang === "bn"
+          ? `${codeFiles.length}টি কোড ফাইল প্রিভিউতে যোগ হয়েছে।`
+          : `Added ${codeFiles.length} code file(s) to the preview.`,
+      );
+    }
+    if (context.length) setAttachments((prev) => [...prev, ...context].slice(-5));
+    if (notes.length) store.addMessage("assistant", notes.join("\n"));
+  };
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
