@@ -153,8 +153,15 @@ export function PreviewPanel() {
         </div>
       </div>
 
+      <AnimatePresence>
       {showHistory && (
-        <div className="absolute right-3 top-14 z-30 w-72 overflow-hidden rounded-xl border border-border bg-ink-900/95 shadow-xl backdrop-blur">
+        <motion.div
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -4, scale: 0.98 }}
+          transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute right-3 top-14 z-30 w-72 origin-top-right overflow-hidden rounded-xl border border-border bg-ink-900/95 shadow-2xl backdrop-blur"
+        >
           <div className="border-b border-border px-3 py-2 text-[11.5px] font-semibold text-foreground/60">
             {t(lang, "versionsTitle")}
           </div>
