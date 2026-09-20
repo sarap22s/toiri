@@ -48,16 +48,19 @@ export function PricingModal() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+          transition={{ duration: 0.18 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 px-4 backdrop-blur-sm"
           onClick={close}
         >
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.97 }}
+            role="dialog"
+            aria-modal="true"
+            initial={{ opacity: 0, y: 14, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 420, damping: 32, mass: 0.8 }}
             onClick={(e) => e.stopPropagation()}
-            className="glass accent-border w-full max-w-lg rounded-2xl p-6"
+            className="panel w-full max-w-lg rounded-2xl p-6"
           >
             <div className="mb-1 flex items-center justify-between">
               <div className="flex items-center gap-2">
