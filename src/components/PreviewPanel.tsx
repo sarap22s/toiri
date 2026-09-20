@@ -19,10 +19,13 @@ import {
   History,
   Loader2,
   Monitor,
+  Search,
   Share2,
+  Smartphone,
 } from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
+import { SeoPanel } from "./SeoPanel";
 
 const Sandbox = lazy(() => import("./Sandbox"));
 
