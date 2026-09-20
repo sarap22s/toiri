@@ -424,6 +424,12 @@ export function ChatPanel() {
           {t(lang, "disclaimer")}
         </p>
       </div>
+
+      <GithubImportDialog
+        open={showGithub}
+        onClose={() => setShowGithub(false)}
+        onImported={(summary) => store.addMessage("assistant", summary)}
+      />
     </div>
   );
 }
