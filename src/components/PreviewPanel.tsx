@@ -39,6 +39,36 @@ export function PreviewPanel() {
   const [publishError, setPublishError] = useState<string | null>(null);
   const [showShare, setShowShare] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Close the History / Share menus on outside click or Escape.
+  useEffect(() => {
+    if (!showHistory && !showShare) return;
+    const closeAll = () => {
+      setShowHistory(false);
+      setShowShare(false);
+    };
+    const onPointerDown = (e: PointerEvent) => {
+      const el = rootRef.current;
+      if (el && e.target instanceof Node && !el.contains(e.target)) return closeAll();
+      if (
+        e.target instanceof Element &&
+        !e.target.closest("[data-panel-menu]") &&
+        !e.target.closest("[data-panel-menu-trigger]")
+      ) {
+        closeAll();
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeAll();
+    };
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [showHistory, showShare]);
 
   const code = files["/App.js"] ?? "";
   const shareUrl =
