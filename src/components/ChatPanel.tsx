@@ -88,6 +88,16 @@ export function ChatPanel() {
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
   }, [input]);
 
+  // The SEO checker in the preview panel can ask for a fix-up build.
+  useEffect(() => {
+    const onPrompt = (e: Event) => {
+      const detail = (e as CustomEvent<string>).detail;
+      if (typeof detail === "string" && detail.trim()) void send(detail);
+    };
+    window.addEventListener("toiri:prompt", onPrompt as EventListener);
+    return () => window.removeEventListener("toiri:prompt", onPrompt as EventListener);
+  });
+
   const stop = () => {
     abortRef.current?.abort();
   };

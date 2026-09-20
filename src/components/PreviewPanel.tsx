@@ -19,10 +19,13 @@ import {
   History,
   Loader2,
   Monitor,
+  Search,
   Share2,
+  Smartphone,
 } from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
+import { SeoPanel } from "./SeoPanel";
 
 const Sandbox = lazy(() => import("./Sandbox"));
 
@@ -31,7 +34,8 @@ export function PreviewPanel() {
   const activeFile = useStore((s) => s.activeFile);
   const versions = useStore((s) => s.versions);
   const lang = useStore((s) => s.lang);
-  const [view, setView] = useState<"preview" | "code">("preview");
+  const [view, setView] = useState<"preview" | "code" | "seo">("preview");
+  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
   const [copied, setCopied] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const publishedSlug = useStore((s) => s.publishedSlug);
@@ -192,7 +196,31 @@ export function PreviewPanel() {
               icon={<Code2 size={13} />}
               label={t(lang, "previewCode")}
             />
+            <ToggleBtn
+              active={view === "seo"}
+              onClick={() => setView("seo")}
+              icon={<Search size={13} />}
+              label={t(lang, "previewSeo")}
+            />
           </div>
+          {view === "preview" && (
+            <div className="ml-1 hidden items-center gap-1 rounded-lg bg-ink-800/70 p-1 sm:flex">
+              <IconBtn
+                onClick={() => setDevice("desktop")}
+                title={t(lang, "deviceDesktop")}
+                active={device === "desktop"}
+              >
+                <Monitor size={13} />
+              </IconBtn>
+              <IconBtn
+                onClick={() => setDevice("mobile")}
+                title={t(lang, "deviceMobile")}
+                active={device === "mobile"}
+              >
+                <Smartphone size={13} />
+              </IconBtn>
+            </div>
+          )}
         </div>
       </div>
 
@@ -305,11 +333,37 @@ export function PreviewPanel() {
 
 
       <div className="flex-1 overflow-hidden bg-ink-950">
-        <ClientOnly fallback={null}>
-          <Suspense fallback={null}>
-            <Sandbox key={filesKey} view={view} files={sandpackFiles} />
-          </Suspense>
-        </ClientOnly>
+        {view === "seo" ? (
+          <SeoPanel
+            onFix={(prompt) =>
+              window.dispatchEvent(new CustomEvent("toiri:prompt", { detail: prompt }))
+            }
+          />
+        ) : (
+          <div
+            className={
+              view === "preview" && device === "mobile"
+                ? "flex h-full items-center justify-center overflow-hidden p-3"
+                : "h-full"
+            }
+          >
+            <motion.div
+              layout
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className={
+                view === "preview" && device === "mobile"
+                  ? "h-full max-h-[780px] w-full max-w-[390px] overflow-hidden rounded-[1.75rem] border border-border bg-ink-900 shadow-2xl"
+                  : "h-full w-full"
+              }
+            >
+              <ClientOnly fallback={null}>
+                <Suspense fallback={null}>
+                  <Sandbox key={filesKey} view={view} files={sandpackFiles} />
+                </Suspense>
+              </ClientOnly>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -319,11 +373,13 @@ function IconBtn({
   onClick,
   title,
   children,
+  active,
   "data-menu": dataMenu,
 }: {
   onClick: () => void;
   title: string;
   children: ReactNode;
+  active?: boolean;
   "data-menu"?: boolean;
 }) {
   return (
@@ -332,7 +388,12 @@ function IconBtn({
       title={title}
       {...(dataMenu ? { "data-panel-menu-trigger": "" } : {})}
       aria-label={title}
-      className="press flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+      {...(active === undefined ? {} : { "aria-pressed": active })}
+      className={`press flex h-7 w-7 items-center justify-center rounded-lg ${
+        active
+          ? "bg-primary text-primary-foreground shadow-sm"
+          : "text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+      }`}
     >
       {children}
     </button>
