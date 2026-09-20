@@ -248,7 +248,26 @@ export function ChatPanel() {
             <span className="shimmer-text text-[12.5px] font-medium">
               {t(lang, "thinking")}
             </span>
+            <button
+              onClick={stop}
+              className="press ml-1 flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+            >
+              <Square size={9} className="fill-current" />
+              {t(lang, "stop")}
+            </button>
           </motion.div>
+        )}
+
+        {!isLoading && canRetry && (
+          <div className="px-1">
+            <button
+              onClick={retry}
+              className="press flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-[11.5px] font-medium text-foreground/75 hover:bg-foreground/5 hover:text-foreground"
+            >
+              <RefreshCw size={11} />
+              {t(lang, "retry")}
+            </button>
+          </div>
         )}
       </div>
 
