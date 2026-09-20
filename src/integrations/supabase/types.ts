@@ -144,6 +144,7 @@ export type Database = {
         Args: { _ip_hash: string; _limit: number }
         Returns: boolean
       }
+      spend_credit: { Args: { _device_id: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never
