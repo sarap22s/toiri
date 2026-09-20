@@ -274,6 +274,7 @@ export function ChatPanel() {
       <div className="border-t border-border p-3">
         <div className="flex items-end gap-2 rounded-xl border border-border bg-ink-800/60 p-2 transition-colors duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-primary/15">
           <textarea
+            ref={taRef}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -284,21 +285,27 @@ export function ChatPanel() {
             }}
             rows={1}
             placeholder={t(lang, "composerPlaceholder")}
-            disabled={isLoading}
-            className="max-h-32 flex-1 resize-none bg-transparent px-2 py-1.5 text-[13.5px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none disabled:opacity-50"
+            className="max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-1.5 text-[13.5px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
           />
-          <button
-            onClick={() => send(input)}
-            disabled={isLoading || !input.trim()}
-            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
-            aria-label="Send"
-          >
-            {isLoading ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
+          {isLoading ? (
+            <button
+              onClick={stop}
+              className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/80 hover:bg-foreground/10"
+              aria-label={t(lang, "stop")}
+              title={t(lang, "stop")}
+            >
+              <Square size={12} className="fill-current" />
+            </button>
+          ) : (
+            <button
+              onClick={() => send(input)}
+              disabled={!input.trim()}
+              className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label="Send"
+            >
               <ArrowUp size={16} />
-            )}
-          </button>
+            </button>
+          )}
         </div>
         <p className="mt-2 px-1 text-center text-[10.5px] text-foreground/25">
           {t(lang, "disclaimer")}
