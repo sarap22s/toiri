@@ -155,9 +155,23 @@ export function ChatPanel() {
         if (id) setLastFile((prev) => ({ ...prev, [id]: label }));
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : t(lang, "genericError");
-      store.addMessage("assistant", `⚠️ ${message}`);
+      if (err instanceof DOMException && err.name === "AbortError") {
+        store.addMessage("assistant", t(lang, "stopped"));
+        setCanRetry(true);
+      } else {
+        const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+        const message = offline
+          ? t(lang, "offlineError")
+          : err instanceof TypeError
+            ? t(lang, "networkError")
+            : err instanceof Error
+              ? err.message
+              : t(lang, "genericError");
+        store.addMessage("assistant", `⚠️ ${message}`);
+        setCanRetry(true);
+      }
     } finally {
+      abortRef.current = null;
       store.setLoading(false);
     }
   };
