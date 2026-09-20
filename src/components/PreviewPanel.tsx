@@ -333,11 +333,37 @@ export function PreviewPanel() {
 
 
       <div className="flex-1 overflow-hidden bg-ink-950">
-        <ClientOnly fallback={null}>
-          <Suspense fallback={null}>
-            <Sandbox key={filesKey} view={view} files={sandpackFiles} />
-          </Suspense>
-        </ClientOnly>
+        {view === "seo" ? (
+          <SeoPanel
+            onFix={(prompt) =>
+              window.dispatchEvent(new CustomEvent("toiri:prompt", { detail: prompt }))
+            }
+          />
+        ) : (
+          <div
+            className={
+              view === "preview" && device === "mobile"
+                ? "flex h-full items-center justify-center overflow-hidden p-3"
+                : "h-full"
+            }
+          >
+            <motion.div
+              layout
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className={
+                view === "preview" && device === "mobile"
+                  ? "h-full max-h-[780px] w-full max-w-[390px] overflow-hidden rounded-[1.75rem] border border-border bg-ink-900 shadow-2xl"
+                  : "h-full w-full"
+              }
+            >
+              <ClientOnly fallback={null}>
+                <Suspense fallback={null}>
+                  <Sandbox key={filesKey} view={view} files={sandpackFiles} />
+                </Suspense>
+              </ClientOnly>
+            </motion.div>
+          </div>
+        )}
       </div>
     </div>
   );
