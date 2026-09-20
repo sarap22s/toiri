@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { ArrowUp, Loader2, RefreshCw, RotateCcw, Sparkles, Square } from "lucide-react";
+
 import { store, useStore } from "@/lib/store";
 import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
