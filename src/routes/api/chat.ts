@@ -109,12 +109,17 @@ export const Route = createFileRoute("/api/chat")({
                   (i) => typeof i?.path === "string" && typeof i?.content === "string",
                 );
 
-              // Charge only after a successful generation.
-              const remaining = await spendCredit(deviceId);
+              // The credit was already charged atomically up front.
               controller.enqueue(
-                line({ type: "done", fileWrites, credits: remaining ?? 0 }),
+                line({ type: "done", fileWrites, credits: spent }),
               );
             } catch (err) {
+              // Generation failed after charging — give the credit back.
+              try {
+                await addCredits(deviceId, 1);
+              } catch (refundErr) {
+                console.error("credit refund failed", refundErr);
+              }
               const e = err as { statusCode?: number; message?: string };
               const status = e?.statusCode ?? 500;
               const message =
