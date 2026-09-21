@@ -56,8 +56,60 @@ export function ChatPanel() {
   const [showGithub, setShowGithub] = useState(false);
   const [showChats, setShowChats] = useState(false);
 
+  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "working">("idle");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const recorderRef = useRef<VoiceRecorder | null>(null);
+
+  const toggleVoice = async () => {
+    if (voiceState === "working") return;
+    setVoiceError(null);
+
+    if (voiceState === "recording") {
+      const recorder = recorderRef.current;
+      recorderRef.current = null;
+      setVoiceState("working");
+      try {
+        const blob = recorder ? await recorder.stop() : null;
+        if (!blob || blob.size < 4000) {
+          setVoiceError(t(lang, "voiceEmpty"));
+          setVoiceState("idle");
+          return;
+        }
+        const form = new FormData();
+        form.append("file", blob, "recording.wav");
+        const res = await fetch("/api/transcribe", { method: "POST", body: form });
+        const data = (await res.json().catch(() => ({}))) as {
+          text?: string;
+          error?: string;
+        };
+        if (!res.ok) throw new Error(data.error || t(lang, "voiceFailed"));
+        const text = (data.text ?? "").trim();
+        if (!text) {
+          setVoiceError(t(lang, "voiceEmpty"));
+        } else {
+          setInput((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+        }
+      } catch (err) {
+        setVoiceError(err instanceof Error ? err.message : t(lang, "voiceFailed"));
+      } finally {
+        setVoiceState("idle");
+      }
+      return;
+    }
+
+    try {
+      recorderRef.current = await startVoiceRecording();
+      setVoiceState("recording");
+    } catch {
+      setVoiceError(t(lang, "voiceMicDenied"));
+      setVoiceState("idle");
+    }
+  };
+
+  useEffect(() => () => recorderRef.current?.cancel(), []);
 
   const handleFiles = async (list: FileList | null) => {
     if (!list?.length) return;
