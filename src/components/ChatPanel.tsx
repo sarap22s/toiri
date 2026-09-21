@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   GitBranch,
+  Loader2,
+  Mic,
   MessagesSquare,
   Paperclip,
   RefreshCw,
   RotateCcw,
+  Square,
   Blocks,
   X,
 } from "lucide-react";
+import { startVoiceRecording, type VoiceRecorder } from "@/lib/voice-recorder";
 
 import { store, useStore } from "@/lib/store";
 import { outOfCreditsText, t } from "@/lib/i18n";
@@ -52,8 +56,60 @@ export function ChatPanel() {
   const [showGithub, setShowGithub] = useState(false);
   const [showChats, setShowChats] = useState(false);
 
+  const [voiceState, setVoiceState] = useState<"idle" | "recording" | "working">("idle");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const recorderRef = useRef<VoiceRecorder | null>(null);
+
+  const toggleVoice = async () => {
+    if (voiceState === "working") return;
+    setVoiceError(null);
+
+    if (voiceState === "recording") {
+      const recorder = recorderRef.current;
+      recorderRef.current = null;
+      setVoiceState("working");
+      try {
+        const blob = recorder ? await recorder.stop() : null;
+        if (!blob || blob.size < 4000) {
+          setVoiceError(t(lang, "voiceEmpty"));
+          setVoiceState("idle");
+          return;
+        }
+        const form = new FormData();
+        form.append("file", blob, "recording.wav");
+        const res = await fetch("/api/transcribe", { method: "POST", body: form });
+        const data = (await res.json().catch(() => ({}))) as {
+          text?: string;
+          error?: string;
+        };
+        if (!res.ok) throw new Error(data.error || t(lang, "voiceFailed"));
+        const text = (data.text ?? "").trim();
+        if (!text) {
+          setVoiceError(t(lang, "voiceEmpty"));
+        } else {
+          setInput((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+        }
+      } catch (err) {
+        setVoiceError(err instanceof Error ? err.message : t(lang, "voiceFailed"));
+      } finally {
+        setVoiceState("idle");
+      }
+      return;
+    }
+
+    try {
+      recorderRef.current = await startVoiceRecording();
+      setVoiceState("recording");
+    } catch {
+      setVoiceError(t(lang, "voiceMicDenied"));
+      setVoiceState("idle");
+    }
+  };
+
+  useEffect(() => () => recorderRef.current?.cancel(), []);
 
   const handleFiles = async (list: FileList | null) => {
     if (!list?.length) return;
@@ -430,6 +486,25 @@ export function ChatPanel() {
           >
             <GitBranch size={14} />
           </PromptInputButton>
+          <PromptInputButton
+            onClick={() => void toggleVoice()}
+            disabled={voiceState === "working"}
+            aria-pressed={voiceState === "recording"}
+            tooltip={voiceState === "recording" ? t(lang, "voiceStop") : t(lang, "voiceStart")}
+            className={
+              voiceState === "recording"
+                ? "press bg-destructive/15 text-destructive-foreground"
+                : "press text-muted-foreground hover:text-foreground"
+            }
+          >
+            {voiceState === "working" ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : voiceState === "recording" ? (
+              <Square size={14} />
+            ) : (
+              <Mic size={14} />
+            )}
+          </PromptInputButton>
             </PromptInputTools>
             <PromptInputSubmit
               status={isLoading ? "streaming" : "ready"}
@@ -440,6 +515,24 @@ export function ChatPanel() {
           </PromptInputFooter>
           </PromptInput>
         </TooltipProvider>
+        {(voiceState !== "idle" || voiceError) && (
+          <p
+            role="status"
+            aria-live="polite"
+            className={`mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] ${
+              voiceError ? "text-destructive-foreground" : "text-muted-foreground"
+            }`}
+          >
+            {voiceState === "recording" && (
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" aria-hidden />
+            )}
+            {voiceError
+              ? voiceError
+              : voiceState === "recording"
+                ? t(lang, "voiceListening")
+                : t(lang, "voiceWorking")}
+          </p>
+        )}
         <p className="mt-2 flex items-center justify-center gap-1.5 px-1 text-center text-[10.5px] text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-lime" aria-hidden />
           {t(lang, "browserOnly")} · {t(lang, "disclaimer")}

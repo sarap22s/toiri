@@ -15,6 +15,7 @@ import { Route as ApiCheckoutRouteImport } from './routes/api/checkout'
 import { Route as ApiCreditsRouteImport } from './routes/api/credits'
 import { Route as ApiGithubImportRouteImport } from './routes/api/github-import'
 import { Route as ApiPublishRouteImport } from './routes/api/publish'
+import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as AppSlugRouteImport } from './routes/app.$slug'
 import { Route as ApiPublicSslcommerzCancelRouteImport } from './routes/api/public/sslcommerz/cancel'
 import { Route as ApiPublicSslcommerzFailRouteImport } from './routes/api/public/sslcommerz/fail'
@@ -49,6 +50,11 @@ const ApiGithubImportRoute = ApiGithubImportRouteImport.update({
 const ApiPublishRoute = ApiPublishRouteImport.update({
   id: '/api/publish',
   path: '/api/publish',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
+  id: '/api/transcribe',
+  path: '/api/transcribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppSlugRoute = AppSlugRouteImport.update({
@@ -86,6 +92,7 @@ export interface FileRoutesByFullPath {
   '/api/credits': typeof ApiCreditsRoute
   '/api/github-import': typeof ApiGithubImportRoute
   '/api/publish': typeof ApiPublishRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
   '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
   '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/api/credits': typeof ApiCreditsRoute
   '/api/github-import': typeof ApiGithubImportRoute
   '/api/publish': typeof ApiPublishRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
   '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
   '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/api/credits': typeof ApiCreditsRoute
   '/api/github-import': typeof ApiGithubImportRoute
   '/api/publish': typeof ApiPublishRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
   '/app/$slug': typeof AppSlugRoute
   '/api/public/sslcommerz/cancel': typeof ApiPublicSslcommerzCancelRoute
   '/api/public/sslcommerz/fail': typeof ApiPublicSslcommerzFailRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/api/credits'
     | '/api/github-import'
     | '/api/publish'
+    | '/api/transcribe'
     | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
     | '/api/public/sslcommerz/fail'
@@ -141,6 +151,7 @@ export interface FileRouteTypes {
     | '/api/credits'
     | '/api/github-import'
     | '/api/publish'
+    | '/api/transcribe'
     | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
     | '/api/public/sslcommerz/fail'
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/api/credits'
     | '/api/github-import'
     | '/api/publish'
+    | '/api/transcribe'
     | '/app/$slug'
     | '/api/public/sslcommerz/cancel'
     | '/api/public/sslcommerz/fail'
@@ -168,6 +180,7 @@ export interface RootRouteChildren {
   ApiCreditsRoute: typeof ApiCreditsRoute
   ApiGithubImportRoute: typeof ApiGithubImportRoute
   ApiPublishRoute: typeof ApiPublishRoute
+  ApiTranscribeRoute: typeof ApiTranscribeRoute
   AppSlugRoute: typeof AppSlugRoute
   ApiPublicSslcommerzCancelRoute: typeof ApiPublicSslcommerzCancelRoute
   ApiPublicSslcommerzFailRoute: typeof ApiPublicSslcommerzFailRoute
@@ -219,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublishRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/transcribe': {
+      id: '/api/transcribe'
+      path: '/api/transcribe'
+      fullPath: '/api/transcribe'
+      preLoaderRoute: typeof ApiTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/app/$slug': {
       id: '/app/$slug'
       path: '/app/$slug'
@@ -264,6 +284,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiCreditsRoute: ApiCreditsRoute,
   ApiGithubImportRoute: ApiGithubImportRoute,
   ApiPublishRoute: ApiPublishRoute,
+  ApiTranscribeRoute: ApiTranscribeRoute,
   AppSlugRoute: AppSlugRoute,
   ApiPublicSslcommerzCancelRoute: ApiPublicSslcommerzCancelRoute,
   ApiPublicSslcommerzFailRoute: ApiPublicSslcommerzFailRoute,
