@@ -164,7 +164,7 @@ export function PreviewPanel() {
             {t(lang, "previewTitle")}
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex w-full flex-wrap items-center gap-1 sm:w-auto sm:flex-nowrap">
           <IconBtn
             onClick={() => {
               setShowShare(false);
@@ -197,7 +197,7 @@ export function PreviewPanel() {
             )}
             {publishedSlug ? t(lang, "republish") : t(lang, "publish")}
           </button>
-          <div className="order-last flex w-full items-center gap-1 rounded-md bg-ink-800/70 p-1 sm:order-none sm:ml-1 sm:w-auto">
+          <div className="order-last mt-1 grid w-full grid-cols-3 gap-1 rounded-md bg-ink-800/70 p-1 sm:order-none sm:ml-1 sm:mt-0 sm:flex sm:w-auto">
             <ToggleBtn
               active={view === "preview"}
               onClick={() => setView("preview")}
