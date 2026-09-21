@@ -15,6 +15,13 @@ export type Version = {
   ts: number;
 };
 
+/** One saved project/conversation in the local chat history. */
+export type ChatSummary = {
+  id: string;
+  title: string;
+  ts: number;
+};
+
 export type State = {
   messages: ChatMessage[];
   isLoading: boolean;
@@ -27,6 +34,8 @@ export type State = {
   deviceId: string;
   publishedSlug: string | null;
   storageError: boolean;
+  chats: ChatSummary[];
+  activeChatId: string;
 };
 
 const STARTER_APP = `export default function App() {
@@ -56,6 +65,11 @@ const FREE_CREDITS = 10;
 const DEVICE_KEY = "toiri.device";
 const LANG_KEY = "toiri.lang";
 const PROJECT_KEY = "toiri.project";
+const CHATS_KEY = "toiri.chats";
+const ACTIVE_KEY = "toiri.activeChat";
+const chatKey = (id: string) => `toiri.chat.${id}`;
+
+const uid = () => Math.random().toString(36).slice(2, 10);
 
 let state: State = {
   messages: [],
@@ -69,6 +83,8 @@ let state: State = {
   deviceId: "",
   publishedSlug: null,
   storageError: false,
+  chats: [],
+  activeChatId: "",
 };
 
 const listeners = new Set<() => void>();
@@ -79,21 +95,32 @@ function set(patch: Partial<State>) {
   persist();
 }
 
-const uid = () => Math.random().toString(36).slice(2, 10);
+function chatPayload() {
+  return {
+    messages: state.messages.slice(-60),
+    files: state.files,
+    activeFile: state.activeFile,
+    versions: state.versions.slice(-20),
+    publishedSlug: state.publishedSlug,
+  };
+}
+
+function deriveTitle(): string {
+  const firstUser = state.messages.find((m) => m.role === "user");
+  const text = firstUser?.content.split("\n")[0]?.trim();
+  return (text && text.slice(0, 60)) || (state.lang === "bn" ? "নতুন প্রজেক্ট" : "New project");
+}
 
 function persist() {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !state.activeChatId) return;
   try {
-    window.localStorage.setItem(
-      PROJECT_KEY,
-      JSON.stringify({
-        messages: state.messages.slice(-60),
-        files: state.files,
-        activeFile: state.activeFile,
-        versions: state.versions.slice(-20),
-        publishedSlug: state.publishedSlug,
-      }),
+    const chats = state.chats.map((c) =>
+      c.id === state.activeChatId ? { ...c, title: deriveTitle(), ts: Date.now() } : c,
     );
+    state = { ...state, chats };
+    window.localStorage.setItem(chatKey(state.activeChatId), JSON.stringify(chatPayload()));
+    window.localStorage.setItem(CHATS_KEY, JSON.stringify(chats.slice(0, 40)));
+    window.localStorage.setItem(ACTIVE_KEY, state.activeChatId);
   } catch {
     if (!state.storageError) {
       state = { ...state, storageError: true };
@@ -102,26 +129,78 @@ function persist() {
   }
 }
 
+type SavedChat = {
+  messages?: ChatMessage[];
+  files?: Record<string, string>;
+  activeFile?: string;
+  versions?: Version[];
+  publishedSlug?: string | null;
+};
+
+function readChat(id: string): SavedChat | null {
+  try {
+    const raw = window.localStorage.getItem(chatKey(id));
+    return raw ? (JSON.parse(raw) as SavedChat) : null;
+  } catch {
+    return null;
+  }
+}
+
+function applyChat(id: string, saved: SavedChat | null) {
+  state = {
+    ...state,
+    activeChatId: id,
+    messages: Array.isArray(saved?.messages) ? saved!.messages : [],
+    files:
+      saved?.files && typeof saved.files === "object"
+        ? saved.files
+        : { "/App.js": STARTER_APP },
+    activeFile: saved?.activeFile ?? "/App.js",
+    versions: Array.isArray(saved?.versions) ? saved!.versions : [],
+    publishedSlug: typeof saved?.publishedSlug === "string" ? saved.publishedSlug : null,
+  };
+}
+
 function restore() {
   if (typeof window === "undefined") return;
+  let chats: ChatSummary[] = [];
   try {
-    const raw = window.localStorage.getItem(PROJECT_KEY);
-    if (!raw) return;
-    const saved = JSON.parse(raw) as Partial<State>;
-    if (saved.files && typeof saved.files === "object") {
-      state = {
-        ...state,
-        files: saved.files as Record<string, string>,
-        activeFile: saved.activeFile ?? "/App.js",
-        messages: Array.isArray(saved.messages) ? saved.messages : [],
-        versions: Array.isArray(saved.versions) ? saved.versions : [],
-        publishedSlug:
-          typeof saved.publishedSlug === "string" ? saved.publishedSlug : null,
-      };
-    }
+    const raw = window.localStorage.getItem(CHATS_KEY);
+    const parsed = raw ? (JSON.parse(raw) as ChatSummary[]) : [];
+    if (Array.isArray(parsed)) chats = parsed.filter((c) => c && typeof c.id === "string");
   } catch {
-    /* ignore corrupt saves */
+    chats = [];
   }
+
+  // Migrate a single legacy project into the new chat history.
+  if (!chats.length) {
+    const legacyRaw = (() => {
+      try {
+        return window.localStorage.getItem(PROJECT_KEY);
+      } catch {
+        return null;
+      }
+    })();
+    const id = uid();
+    let saved: SavedChat | null = null;
+    if (legacyRaw) {
+      try {
+        saved = JSON.parse(legacyRaw) as SavedChat;
+      } catch {
+        saved = null;
+      }
+    }
+    chats = [{ id, title: "", ts: Date.now() }];
+    state = { ...state, chats };
+    applyChat(id, saved);
+    state = { ...state, chats: [{ id, title: deriveTitle(), ts: Date.now() }] };
+    return;
+  }
+
+  const activeId = window.localStorage.getItem(ACTIVE_KEY);
+  const active = chats.find((c) => c.id === activeId) ?? chats[0]!;
+  state = { ...state, chats };
+  applyChat(active.id, readChat(active.id));
 }
 
 function readDeviceId(): string {
@@ -171,6 +250,49 @@ export const store = {
   },
   setCredits(credits: number) {
     set({ credits });
+  },
+
+  /** Starts a fresh project and keeps the current one in history. */
+  newChat() {
+    persist();
+    const id = uid();
+    const chats = [
+      { id, title: state.lang === "bn" ? "নতুন প্রজেক্ট" : "New project", ts: Date.now() },
+      ...state.chats,
+    ].slice(0, 40);
+    state = { ...state, chats };
+    applyChat(id, null);
+    listeners.forEach((l) => l());
+    persist();
+    return id;
+  },
+  openChat(id: string) {
+    if (id === state.activeChatId) return;
+    persist();
+    applyChat(id, readChat(id));
+    listeners.forEach((l) => l());
+    persist();
+  },
+  deleteChat(id: string) {
+    try {
+      window.localStorage.removeItem(chatKey(id));
+    } catch {
+      /* ignore */
+    }
+    const chats = state.chats.filter((c) => c.id !== id);
+    if (id === state.activeChatId) {
+      if (chats.length) {
+        state = { ...state, chats };
+        applyChat(chats[0]!.id, readChat(chats[0]!.id));
+        listeners.forEach((l) => l());
+        persist();
+      } else {
+        state = { ...state, chats: [] };
+        store.newChat();
+      }
+      return;
+    }
+    set({ chats });
   },
 
   addMessage(role: ChatMessage["role"], content: string) {
@@ -293,13 +415,7 @@ export const store = {
     });
   },
   reset() {
-    set({
-      messages: [],
-      files: { "/App.js": STARTER_APP },
-      activeFile: "/App.js",
-      versions: [],
-      publishedSlug: null,
-    });
+    store.newChat();
   },
 };
 

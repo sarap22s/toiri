@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   GitBranch,
+  MessagesSquare,
   Paperclip,
   RefreshCw,
   RotateCcw,
@@ -14,6 +15,8 @@ import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
 import { PromptGallery } from "./PromptGallery";
 import { GithubImportDialog } from "./GithubImportDialog";
+import { ChatHistoryPanel } from "./ChatHistoryPanel";
+
 import {
   Conversation,
   ConversationContent,
@@ -47,6 +50,8 @@ export function ChatPanel() {
   const [canRetry, setCanRetry] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showGithub, setShowGithub] = useState(false);
+  const [showChats, setShowChats] = useState(false);
+
   const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -245,6 +250,17 @@ export function ChatPanel() {
     }
   };
 
+  if (showChats) {
+    return (
+      <section
+        className="panel flex h-full flex-col overflow-hidden rounded-lg"
+        aria-label={t(lang, "chats")}
+      >
+        <ChatHistoryPanel onBack={() => setShowChats(false)} />
+      </section>
+    );
+  }
+
   return (
     <section className="panel flex h-full flex-col overflow-hidden rounded-lg" aria-label={t(lang, "assistantLabel")}>
       <div className="flex h-11 shrink-0 items-center justify-between border-b border-border px-3.5">
@@ -254,20 +270,29 @@ export function ChatPanel() {
             {t(lang, "assistantLabel")}
           </span>
         </div>
-        {messages.length > 0 && (
+        <div className="flex items-center gap-1">
           <button
-            onClick={() => {
-              if (!window.confirm(t(lang, "confirmReset"))) return;
-              store.reset();
-              setLastFile({});
-            }}
+            onClick={() => setShowChats(true)}
             className="press flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
           >
-            <RotateCcw size={11} />
-            {t(lang, "newChat")}
+            <MessagesSquare size={11} />
+            {t(lang, "chats")}
           </button>
-        )}
+          {messages.length > 0 && (
+            <button
+              onClick={() => {
+                store.newChat();
+                setLastFile({});
+              }}
+              className="press flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
+            >
+              <RotateCcw size={11} />
+              {t(lang, "newChat")}
+            </button>
+          )}
+        </div>
       </div>
+
 
       {storageError && (
         <div role="alert" className="mx-3 mt-3 rounded-md border border-destructive/35 bg-destructive/10 px-3 py-2 text-[11.5px] text-destructive-foreground">
