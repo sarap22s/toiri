@@ -70,6 +70,27 @@ export const STRINGS: Record<Lang, Dict> = {
     confirmRestore: "Restore this version? Your current app will be saved as a new undo point first.",
     restored: "Version restored. Your previous app is available in History.",
     published: "Published link is ready.",
+    chats: "Chat history",
+    back: "Back",
+    noChats: "No saved projects yet.",
+    deleteChat: "Delete",
+    confirmDeleteChat: "Delete this project from this browser?",
+    untitledChat: "New project",
+    deploy: "Deploy",
+    deployTitle: "Deploy to your own hosting",
+    deployHint:
+      "Download the project files first, then upload them to any of these services.",
+    downloadProject: "Download project files (.zip)",
+    preparing: "Preparing…",
+    deployGithub: "Create a new GitHub repo",
+    deployGithubHint: "Unzip and upload the files to a new repository.",
+    deployVercel: "Vercel",
+    deployVercelHint: "Connect the GitHub repo and Vercel builds it for you.",
+    deployNetlify: "Netlify Drop",
+    deployNetlifyHint: "Unzip and drag the folder in — your site goes live.",
+    deployCloudflare: "Cloudflare Pages",
+    deployCloudflareHint: "Pick the GitHub repo, build command npm run build.",
+
 
 
     comingSoonBody:
@@ -142,6 +163,27 @@ export const STRINGS: Record<Lang, Dict> = {
     confirmRestore: "এই ভার্সনটি ফিরিয়ে আনবেন? বর্তমান অ্যাপটি আগে একটি নতুন আনডু পয়েন্ট হিসেবে সেভ হবে।",
     restored: "ভার্সন ফিরিয়ে আনা হয়েছে। আগের অ্যাপটি হিস্ট্রিতে আছে।",
     published: "পাবলিশ লিংক প্রস্তুত।",
+    chats: "চ্যাট হিস্ট্রি",
+    back: "ফিরে যান",
+    noChats: "এখনো কোনো সেভ করা প্রজেক্ট নেই।",
+    deleteChat: "মুছে ফেলুন",
+    confirmDeleteChat: "এই প্রজেক্টটি এই ব্রাউজার থেকে মুছে ফেলবেন?",
+    untitledChat: "নতুন প্রজেক্ট",
+    deploy: "ডিপ্লয়",
+    deployTitle: "নিজের হোস্টিংয়ে ডিপ্লয় করুন",
+    deployHint:
+      "প্রথমে প্রজেক্ট ফাইলগুলো ডাউনলোড করুন, তারপর যেকোনো একটি সার্ভিসে আপলোড করুন।",
+    downloadProject: "প্রজেক্ট ফাইল ডাউনলোড (.zip)",
+    preparing: "প্রস্তুত হচ্ছে…",
+    deployGithub: "GitHub-এ নতুন রিপো বানান",
+    deployGithubHint: "জিপ খুলে ফাইলগুলো নতুন রিপোতে আপলোড করুন।",
+    deployVercel: "Vercel",
+    deployVercelHint: "GitHub রিপো যুক্ত করলে Vercel নিজেই বিল্ড করে দেবে।",
+    deployNetlify: "Netlify Drop",
+    deployNetlifyHint: "জিপ খুলে ফোল্ডারটি টেনে ছাড়লেই সাইট লাইভ।",
+    deployCloudflare: "Cloudflare Pages",
+    deployCloudflareHint: "GitHub রিপো বেছে নিন, বিল্ড কমান্ড npm run build।",
+
 
 
     comingSoonBody:
