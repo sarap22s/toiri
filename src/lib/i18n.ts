@@ -65,6 +65,13 @@ export const STRINGS: Record<Lang, Dict> = {
     promptHint:
       "Tap any idea — it sends a full, detailed description, so you don't have to know the steps. You can change anything afterwards by chatting.",
     browserOnly: "Saved in this browser",
+    voiceStart: "Speak your idea",
+    voiceStop: "Stop recording",
+    voiceListening: "Listening… tap to stop",
+    voiceWorking: "Turning your voice into words…",
+    voiceMicDenied: "Microphone access is needed. Allow it in your browser and try again.",
+    voiceEmpty: "That recording was empty — please try again.",
+    voiceFailed: "Could not understand that recording. Please try again.",
     storageError: "This project is too large to save in this browser. Download your code before leaving.",
     confirmReset: "Start a new project? Your current chat and local versions will be replaced. Download your code first if you need a copy.",
     confirmRestore: "Restore this version? Your current app will be saved as a new undo point first.",
