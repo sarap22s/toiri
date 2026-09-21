@@ -26,6 +26,21 @@ export const PROMPT_CATEGORIES: PromptCategory[] = [
     label: { en: "Shop & business", bn: "দোকান ও ব্যবসা" },
     ideas: [
       {
+        id: "shop-facebook-product",
+        title: {
+          en: "Facebook single-product landing page",
+          bn: "ফেসবুকের জন্য এক পণ্যের ল্যান্ডিং পেজ",
+        },
+        summary: {
+          en: "Offer, trust proof, order form and mobile checkout",
+          bn: "অফার, বিশ্বাসযোগ্যতা, অর্ডার ফর্ম ও মোবাইল চেকআউট",
+        },
+        prompt: {
+          en: "Build a complete mobile-first, single-page ecommerce landing page for a Bangladeshi Facebook business selling one featured product: a premium rechargeable mini blender. The page should be designed for visitors arriving from a Facebook post or ad and guide them directly toward ordering. Use clear Bangla copy throughout. Start with a strong product name, short benefit-led headline, visible regular price ৳1,850 and offer price ৳1,290, discount badge, product image placeholder, star rating, delivery note and a prominent 'অর্ডার করুন' button. Add sections for 5 key benefits with icons, how to use it in 3 steps, product specifications, what is included in the box, customer review cards, cash-on-delivery trust points, delivery charges (Dhaka ৳70, outside Dhaka ৳130), FAQ accordions and a final urgency offer. Keep a sticky mobile order button visible while scrolling. The order form must collect customer name, Bangladeshi phone number, full address, district, quantity and product colour; update product price, delivery charge and grand total automatically. Validate required fields and phone format. On submit, show a polished Bangla order confirmation with a generated order number and order summary. Also include Facebook Messenger and WhatsApp contact buttons, cancellation/return information, and a simple footer. Use a premium high-conversion visual style with strong contrast, readable Bangla typography, real ecommerce spacing, accessible labels, semantic headings, image alt text, SEO title and description, fast mobile layout, and no fake countdown timer.",
+          bn: "বাংলাদেশের একটি ফেসবুক ব্যবসার জন্য মোবাইল-ফার্স্ট, এক পেজের সম্পূর্ণ ইকমার্স ল্যান্ডিং পেজ বানাও। মূল পণ্য হবে একটি প্রিমিয়াম রিচার্জেবল মিনি ব্লেন্ডার। ফেসবুক পোস্ট বা বিজ্ঞাপন থেকে আসা ভিজিটর যেন সহজে পণ্য বুঝে সরাসরি অর্ডার করতে পারে—সেভাবে পুরো পেজ সাজাও। সব লেখা পরিষ্কার বাংলায় হবে। শুরুতে পণ্যের নাম, উপকারিতাভিত্তিক শক্তিশালী শিরোনাম, নিয়মিত দাম ৳১,৮৫০, অফার মূল্য ৳১,২৯০, ডিসকাউন্ট ব্যাজ, পণ্যের ছবির জায়গা, স্টার রেটিং, ডেলিভারি তথ্য এবং স্পষ্ট ‘অর্ডার করুন’ বাটন রাখো। এরপর আইকনসহ ৫টি প্রধান সুবিধা, ৩ ধাপে ব্যবহারবিধি, পণ্যের স্পেসিফিকেশন, বক্সে কী কী থাকবে, কাস্টমার রিভিউ কার্ড, ক্যাশ অন ডেলিভারির বিশ্বাসযোগ্যতার তথ্য, ডেলিভারি চার্জ (ঢাকার ভিতরে ৳৭০, ঢাকার বাইরে ৳১৩০), প্রশ্নোত্তর অ্যাকর্ডিয়ন এবং শেষে সীমিত অফারের কল-টু-অ্যাকশন রাখো। স্ক্রল করার সময় মোবাইলে স্টিকি অর্ডার বাটন দেখা যাবে। অর্ডার ফর্মে কাস্টমারের নাম, বাংলাদেশের ফোন নম্বর, সম্পূর্ণ ঠিকানা, জেলা, পরিমাণ ও পণ্যের রং নিতে হবে; পরিমাণ ও এলাকার ভিত্তিতে পণ্যের দাম, ডেলিভারি চার্জ ও সর্বমোট টাকা স্বয়ংক্রিয়ভাবে বদলাবে। আবশ্যিক তথ্য ও ফোন নম্বর যাচাই করো। সাবমিট করলে একটি তৈরি করা অর্ডার নম্বর ও অর্ডার সামারিসহ সুন্দর বাংলা কনফার্মেশন দেখাও। Facebook Messenger ও WhatsApp যোগাযোগ বাটন, বাতিল/রিটার্নের তথ্য এবং সাধারণ ফুটারও রাখো। প্রিমিয়াম, বিক্রয়কেন্দ্রিক ডিজাইন, ভালো কনট্রাস্ট, পড়তে সুবিধাজনক বাংলা ফন্ট, বাস্তব ইকমার্স স্পেসিং, অ্যাক্সেসিবল লেবেল, সঠিক হেডিং, ছবির alt টেক্সট, SEO title ও description এবং দ্রুত মোবাইল লেআউট ব্যবহার করো। ভুয়া কাউন্টডাউন টাইমার ব্যবহার কোরো না।",
+        },
+      },
+      {
         id: "shop-order",
         title: { en: "Online order page for a local shop", bn: "দোকানের অনলাইন অর্ডার পেজ" },
         summary: {
