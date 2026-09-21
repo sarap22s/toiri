@@ -23,6 +23,8 @@ export const Route = createFileRoute("/")({
           "Describe an app in Bangla or English and watch Toiri build it live in the preview.",
       },
       { property: "og:url", content: "https://assemble-smiles-co.lovable.app/" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://assemble-smiles-co.lovable.app/" }],
   }),
@@ -106,7 +108,7 @@ function Index() {
   }, []);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-dvh min-h-0 w-screen overflow-hidden bg-ink-950">
       <div className="app-bg" />
       <PricingModal />
       {payment && (
@@ -128,7 +130,7 @@ function Index() {
       <div className="relative z-10 flex h-full flex-col">
         <Header />
         {isStacked && (
-          <div className="mx-3 mb-2 flex items-center gap-1 rounded-xl border border-border bg-ink-800/70 p-1">
+          <div className="mx-3 my-2 flex shrink-0 items-center gap-1 rounded-lg border border-border bg-ink-900 p-1 shadow-lg">
             <TabBtn
               active={mobileTab === "chat"}
               onClick={() => setMobileTab("chat")}
@@ -180,7 +182,7 @@ function Index() {
                 : "min-w-[360px]"
             }`}
           >
-            <PreviewPanel />
+            {(!isStacked || mobileTab === "preview") && <PreviewPanel />}
           </div>
         </div>
       </div>
@@ -203,7 +205,7 @@ function TabBtn({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`press flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold ${
+      className={`press flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] font-semibold ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground"

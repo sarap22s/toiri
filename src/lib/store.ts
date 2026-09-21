@@ -26,6 +26,7 @@ export type State = {
   lang: Lang;
   deviceId: string;
   publishedSlug: string | null;
+  storageError: boolean;
 };
 
 const STARTER_APP = `export default function App() {
@@ -67,6 +68,7 @@ let state: State = {
   lang: "en",
   deviceId: "",
   publishedSlug: null,
+  storageError: false,
 };
 
 const listeners = new Set<() => void>();
@@ -93,7 +95,10 @@ function persist() {
       }),
     );
   } catch {
-    /* storage full or blocked — keep working in memory */
+    if (!state.storageError) {
+      state = { ...state, storageError: true };
+      listeners.forEach((listener) => listener());
+    }
   }
 }
 
@@ -161,6 +166,7 @@ export const store = {
   },
   setLang(lang: Lang) {
     if (typeof window !== "undefined") window.localStorage.setItem(LANG_KEY, lang);
+    if (typeof document !== "undefined") document.documentElement.lang = lang;
     set({ lang });
   },
   setCredits(credits: number) {
@@ -189,6 +195,13 @@ export const store = {
   },
   async publish(title: string) {
     const code = state.files["/App.js"] ?? "";
+    if (state.activeFile !== "/App.js" && state.files[state.activeFile] !== code) {
+      throw new Error(
+        state.lang === "bn"
+          ? "ইমপোর্ট করা প্রজেক্টটি এখনও এক ফাইলের পাবলিশ ফরম্যাটে প্রস্তুত নয়। চ্যাটে বলে /App.js ফাইলে রূপান্তর করুন।"
+          : "This imported project is not ready for single-file publishing. Ask Toiri to convert it into /App.js first.",
+      );
+    }
     const res = await fetch("/api/publish", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -251,7 +264,18 @@ export const store = {
   restoreVersion(id: string) {
     const version = state.versions.find((v) => v.id === id);
     if (!version) return;
-    set({ files: { ...state.files, "/App.js": version.code }, activeFile: "/App.js" });
+    const current = state.files["/App.js"] ?? "";
+    const undo: Version = {
+      id: uid(),
+      label: state.lang === "bn" ? "রিস্টোরের আগের সংস্করণ" : "Before version restore",
+      code: current,
+      ts: Date.now(),
+    };
+    set({
+      files: { ...state.files, "/App.js": version.code },
+      activeFile: "/App.js",
+      versions: [...state.versions, undo].slice(-20),
+    });
   },
   loadDemo() {
     const intro = DEMO_INTRO[state.lang];
