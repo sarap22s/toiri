@@ -486,6 +486,25 @@ export function ChatPanel() {
           >
             <GitBranch size={14} />
           </PromptInputButton>
+          <PromptInputButton
+            onClick={() => void toggleVoice()}
+            disabled={voiceState === "working"}
+            aria-pressed={voiceState === "recording"}
+            tooltip={voiceState === "recording" ? t(lang, "voiceStop") : t(lang, "voiceStart")}
+            className={
+              voiceState === "recording"
+                ? "press bg-destructive/15 text-destructive-foreground"
+                : "press text-muted-foreground hover:text-foreground"
+            }
+          >
+            {voiceState === "working" ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : voiceState === "recording" ? (
+              <Square size={14} />
+            ) : (
+              <Mic size={14} />
+            )}
+          </PromptInputButton>
             </PromptInputTools>
             <PromptInputSubmit
               status={isLoading ? "streaming" : "ready"}
