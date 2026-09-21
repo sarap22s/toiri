@@ -28,6 +28,7 @@ import {
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input";
 import { Shimmer } from "@/components/ai-elements/shimmer";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const CODE_EXT = /\.(jsx?|tsx?|css|html|json)$/i;
 const TEXT_EXT = /\.(md|txt|csv|ya?ml|env|svg)$/i;
@@ -365,10 +366,11 @@ export function ChatPanel() {
           </div>
         )}
 
-        <PromptInput
-          onSubmit={({ text }) => void send(text)}
-          className="rounded-lg border-border bg-ink-800/70 shadow-none focus-within:border-primary/50"
-        >
+        <TooltipProvider>
+          <PromptInput
+            onSubmit={({ text }) => void send(text)}
+            className="rounded-lg border-border bg-ink-800/70 shadow-none focus-within:border-primary/50"
+          >
           <input
             ref={fileRef}
             type="file"
@@ -411,7 +413,8 @@ export function ChatPanel() {
               className="press bg-primary text-primary-foreground"
             />
           </PromptInputFooter>
-        </PromptInput>
+          </PromptInput>
+        </TooltipProvider>
         <p className="mt-2 flex items-center justify-center gap-1.5 px-1 text-center text-[10.5px] text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-lime" aria-hidden />
           {t(lang, "browserOnly")} · {t(lang, "disclaimer")}
