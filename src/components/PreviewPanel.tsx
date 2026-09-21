@@ -21,11 +21,14 @@ import {
   Monitor,
   Search,
   Share2,
+  Rocket,
   Smartphone,
 } from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { SeoPanel } from "./SeoPanel";
+import { DeployDialog } from "./DeployDialog";
+
 
 const Sandbox = lazy(() => import("./Sandbox"));
 
@@ -44,6 +47,8 @@ export function PreviewPanel() {
   const [showShare, setShowShare] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  const [showDeploy, setShowDeploy] = useState(false);
+
   const rootRef = useRef<HTMLDivElement>(null);
 
   // Close the History / Share menus on outside click or Escape.
@@ -182,7 +187,11 @@ export function PreviewPanel() {
           <IconBtn onClick={download} title={t(lang, "download")}>
             <Download size={13} />
           </IconBtn>
+          <IconBtn onClick={() => setShowDeploy(true)} title={t(lang, "deploy")}>
+            <Rocket size={13} />
+          </IconBtn>
           <button
+
             onClick={publish}
             disabled={publishing}
             data-panel-menu-trigger
