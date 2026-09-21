@@ -515,6 +515,24 @@ export function ChatPanel() {
           </PromptInputFooter>
           </PromptInput>
         </TooltipProvider>
+        {(voiceState !== "idle" || voiceError) && (
+          <p
+            role="status"
+            aria-live="polite"
+            className={`mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] ${
+              voiceError ? "text-destructive-foreground" : "text-muted-foreground"
+            }`}
+          >
+            {voiceState === "recording" && (
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-destructive" aria-hidden />
+            )}
+            {voiceError
+              ? voiceError
+              : voiceState === "recording"
+                ? t(lang, "voiceListening")
+                : t(lang, "voiceWorking")}
+          </p>
+        )}
         <p className="mt-2 flex items-center justify-center gap-1.5 px-1 text-center text-[10.5px] text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-lime" aria-hidden />
           {t(lang, "browserOnly")} · {t(lang, "disclaimer")}
