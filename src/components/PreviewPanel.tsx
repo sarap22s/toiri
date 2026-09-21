@@ -394,7 +394,10 @@ export function PreviewPanel() {
           </div>
         )}
       </div>
+
+      <DeployDialog open={showDeploy} onClose={() => setShowDeploy(false)} />
     </div>
+
   );
 }
 
