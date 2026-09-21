@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Cloud, Download, ExternalLink, Github, Loader2, Triangle, X } from "lucide-react";
+import { Cloud, Download, ExternalLink, GitBranch, Loader2, Triangle, X } from "lucide-react";
 import { store, useStore } from "@/lib/store";
 import { t } from "@/lib/i18n";
 import { downloadProjectZip } from "@/lib/export-project";
@@ -8,7 +8,7 @@ const TARGETS = [
   {
     id: "github",
     href: "https://github.com/new",
-    icon: Github,
+    icon: GitBranch,
     label: "deployGithub",
     hint: "deployGithubHint",
   },
