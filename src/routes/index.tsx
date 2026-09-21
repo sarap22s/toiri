@@ -90,7 +90,9 @@ function Index() {
   const resizeWithKeyboard = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
     event.preventDefault();
-    setLeftWidth((current) => Math.min(70, Math.max(28, current + (event.key === "ArrowRight" ? 2 : -2))));
+    setLeftWidth((current) =>
+      Math.min(70, Math.max(28, current + (event.key === "ArrowRight" ? 2 : -2))),
+    );
   };
 
   useEffect(() => {
@@ -119,7 +121,7 @@ function Index() {
       <PricingModal />
       {payment && (
         <div
-          className={`fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-xl border px-4 py-2.5 text-[12.5px] font-medium backdrop-blur ${
+          className={`fixed left-3 right-3 top-3 z-[60] rounded-lg border px-4 py-2.5 text-center text-[12.5px] font-medium shadow-xl backdrop-blur sm:left-1/2 sm:right-auto sm:max-w-md sm:-translate-x-1/2 ${
             payment === "success"
               ? "border-lime/40 bg-lime/10 text-lime"
               : "border-red-500/30 bg-red-500/10 text-red-300"

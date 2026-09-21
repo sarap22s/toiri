@@ -82,7 +82,15 @@ export function PreviewPanel() {
       : "";
 
   const publish = async () => {
-    if (publishedSlug && !window.confirm(lang === "bn" ? "লাইভ লিংকটি নতুন কোড দিয়ে আপডেট করবেন?" : "Update your live link with the current app?")) return;
+    if (
+      publishedSlug &&
+      !window.confirm(
+        lang === "bn"
+          ? "লাইভ লিংকটি নতুন কোড দিয়ে আপডেট করবেন?"
+          : "Update your live link with the current app?",
+      )
+    )
+      return;
     setPublishing(true);
     setPublishError(null);
     setShowShare(true);
