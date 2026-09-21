@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   GitBranch,
+  Loader2,
+  Mic,
   MessagesSquare,
   Paperclip,
   RefreshCw,
   RotateCcw,
+  Square,
   Blocks,
   X,
 } from "lucide-react";
+import { startVoiceRecording, type VoiceRecorder } from "@/lib/voice-recorder";
 
 import { store, useStore } from "@/lib/store";
 import { outOfCreditsText, t } from "@/lib/i18n";
