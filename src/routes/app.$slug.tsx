@@ -48,7 +48,7 @@ function PublishedApp() {
   if (!app) return <Notice text="This app link does not exist." />;
 
   return (
-    <div className="flex h-screen w-screen flex-col bg-ink-950">
+    <div className="flex h-dvh w-screen flex-col bg-ink-950">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
         <h1 className="truncate font-display text-[13px] font-semibold text-foreground/80">
           {app.title}

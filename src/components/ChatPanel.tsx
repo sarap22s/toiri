@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowUp,
   GitBranch,
-  Loader2,
   Paperclip,
   RefreshCw,
   RotateCcw,
-  Sparkles,
-  Square,
+  Blocks,
   X,
 } from "lucide-react";
 
@@ -17,6 +14,21 @@ import { outOfCreditsText, t } from "@/lib/i18n";
 import { MessageBubble } from "./MessageBubble";
 import { PromptGallery } from "./PromptGallery";
 import { GithubImportDialog } from "./GithubImportDialog";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import {
+  PromptInput,
+  PromptInputButton,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input";
+import { Shimmer } from "@/components/ai-elements/shimmer";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const CODE_EXT = /\.(jsx?|tsx?|css|html|json)$/i;
 const TEXT_EXT = /\.(md|txt|csv|ya?ml|env|svg)$/i;
@@ -29,13 +41,12 @@ export function ChatPanel() {
   const isLoading = useStore((s) => s.isLoading);
   const lang = useStore((s) => s.lang);
   const credits = useStore((s) => s.credits);
+  const storageError = useStore((s) => s.storageError);
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
   const [canRetry, setCanRetry] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showGithub, setShowGithub] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const taRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -72,21 +83,6 @@ export function ChatPanel() {
     if (context.length) setAttachments((prev) => [...prev, ...context].slice(-5));
     if (notes.length) store.addMessage("assistant", notes.join("\n"));
   };
-
-  useEffect(() => {
-    scrollRef.current?.scrollTo({
-      top: scrollRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages, isLoading]);
-
-  // Grow the composer with the text, up to the max height.
-  useEffect(() => {
-    const el = taRef.current;
-    if (!el) return;
-    el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
-  }, [input]);
 
   // The SEO checker in the preview panel can ask for a fix-up build.
   useEffect(() => {
@@ -250,17 +246,18 @@ export function ChatPanel() {
   };
 
   return (
-    <div className="panel flex h-full flex-col overflow-hidden rounded-2xl">
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+    <section className="panel flex h-full flex-col overflow-hidden rounded-lg" aria-label={t(lang, "assistantLabel")}>
+      <div className="flex h-11 shrink-0 items-center justify-between border-b border-border px-3.5">
         <div className="flex items-center gap-2">
-          <Sparkles size={13} className="text-primary" />
-          <span className="font-display text-[12.5px] font-semibold tracking-tight text-foreground/80">
+          <Blocks size={13} className="text-primary" />
+          <span className="font-display text-[12.5px] font-semibold text-foreground/85">
             {t(lang, "assistantLabel")}
           </span>
         </div>
         {messages.length > 0 && (
           <button
             onClick={() => {
+              if (!window.confirm(t(lang, "confirmReset"))) return;
               store.reset();
               setLastFile({});
             }}
@@ -272,27 +269,30 @@ export function ChatPanel() {
         )}
       </div>
 
-      <div
-        ref={scrollRef}
-        className="min-w-0 flex-1 space-y-5 overflow-y-auto overflow-x-hidden px-4 py-5"
-      >
+      {storageError && (
+        <div role="alert" className="mx-3 mt-3 rounded-md border border-destructive/35 bg-destructive/10 px-3 py-2 text-[11.5px] text-destructive-foreground">
+          {t(lang, "storageError")}
+        </div>
+      )}
+      <Conversation className="min-w-0">
+        <ConversationContent className="min-h-full gap-5 overflow-x-hidden px-4 py-5">
         {messages.length === 0 ? (
           <div className="mx-auto flex min-h-full w-full max-w-[26rem] flex-col items-center justify-center py-4 text-center">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="accent-border mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-800"
+              className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/30 bg-primary/10 shadow-[0_0_30px_-14px] shadow-primary"
             >
-              <Sparkles size={22} className="text-primary" />
+              <Blocks size={20} className="text-primary" />
             </motion.div>
             <h2 className="font-display text-xl font-bold text-foreground">
               {t(lang, "whatToBuild")}
             </h2>
-            <p className="mt-1.5 max-w-xs text-[13px] text-foreground/40">
+            <p className="mt-1.5 max-w-xs text-[13px] text-muted-foreground">
               {t(lang, "chatIntro")}
             </p>
-            <div className="mt-7 grid w-full max-w-sm gap-2 text-left">
+            <div className="mt-6 grid w-full max-w-sm gap-2 text-left">
               <PromptGallery onPick={(p) => send(p)} />
               <button
                 onClick={() => store.loadDemo()}
@@ -317,15 +317,11 @@ export function ChatPanel() {
             animate={{ opacity: 1 }}
             className="flex items-center gap-2.5 px-1"
           >
-            <Loader2 size={14} className="animate-spin text-primary" />
-            <span className="shimmer-text text-[12.5px] font-medium">
-              {t(lang, "thinking")}
-            </span>
+            <Shimmer className="text-[12.5px] font-medium">{t(lang, "thinking")}</Shimmer>
             <button
               onClick={stop}
               className="press ml-1 flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
             >
-              <Square size={9} className="fill-current" />
               {t(lang, "stop")}
             </button>
           </motion.div>
@@ -342,9 +338,11 @@ export function ChatPanel() {
             </button>
           </div>
         )}
-      </div>
+        </ConversationContent>
+        <ConversationScrollButton aria-label={lang === "bn" ? "সর্বশেষ বার্তায় যান" : "Jump to latest message"} />
+      </Conversation>
 
-      <div className="border-t border-border p-3">
+      <div className="safe-bottom shrink-0 border-t border-border bg-ink-950/60 p-3">
         {attachments.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1.5">
             {attachments.map((a, i) => (
@@ -368,7 +366,11 @@ export function ChatPanel() {
           </div>
         )}
 
-        <div className="flex items-end gap-2 rounded-xl border border-border bg-ink-800/60 p-2 transition-colors duration-200 focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-primary/15">
+        <TooltipProvider>
+          <PromptInput
+            onSubmit={({ text }) => void send(text)}
+            className="rounded-lg border-border bg-ink-800/70 shadow-none focus-within:border-primary/50"
+          >
           <input
             ref={fileRef}
             type="file"
@@ -380,58 +382,42 @@ export function ChatPanel() {
               e.target.value = "";
             }}
           />
-          <button
-            onClick={() => fileRef.current?.click()}
-            aria-label={t(lang, "attach")}
-            title={t(lang, "attach")}
-            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
-          >
-            <Paperclip size={14} />
-          </button>
-          <button
-            onClick={() => setShowGithub(true)}
-            aria-label={t(lang, "importGithub")}
-            title={t(lang, "importGithub")}
-            className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/70 hover:bg-foreground/10 hover:text-foreground"
-          >
-            <GitBranch size={14} />
-          </button>
-          <textarea
-            ref={taRef}
+          <PromptInputTextarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send(input);
-              }
-            }}
             rows={1}
             placeholder={t(lang, "composerPlaceholder")}
-            className="max-h-40 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-1.5 text-[13.5px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
+            className="max-h-40 min-h-12 px-3 py-3 text-[13.5px] leading-relaxed placeholder:text-muted-foreground"
           />
-          {isLoading ? (
-            <button
-              onClick={stop}
-              className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800 text-foreground/80 hover:bg-foreground/10"
-              aria-label={t(lang, "stop")}
-              title={t(lang, "stop")}
-            >
-              <Square size={12} className="fill-current" />
-            </button>
-          ) : (
-            <button
-              onClick={() => send(input)}
-              disabled={!input.trim()}
-              className="press flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/85 disabled:cursor-not-allowed disabled:opacity-30"
-              aria-label="Send"
-            >
-              <ArrowUp size={16} />
-            </button>
-          )}
-        </div>
-        <p className="mt-2 px-1 text-center text-[10.5px] text-foreground/25">
-          {t(lang, "disclaimer")}
+          <PromptInputFooter className="px-2 pb-2 pt-0">
+            <PromptInputTools>
+          <PromptInputButton
+            onClick={() => fileRef.current?.click()}
+            tooltip={t(lang, "attach")}
+            className="press text-muted-foreground hover:text-foreground"
+          >
+            <Paperclip size={14} />
+          </PromptInputButton>
+          <PromptInputButton
+            onClick={() => setShowGithub(true)}
+            tooltip={t(lang, "importGithub")}
+            className="press text-muted-foreground hover:text-foreground"
+          >
+            <GitBranch size={14} />
+          </PromptInputButton>
+            </PromptInputTools>
+            <PromptInputSubmit
+              status={isLoading ? "streaming" : "ready"}
+              onStop={stop}
+              disabled={!isLoading && !input.trim()}
+              className="press bg-primary text-primary-foreground"
+            />
+          </PromptInputFooter>
+          </PromptInput>
+        </TooltipProvider>
+        <p className="mt-2 flex items-center justify-center gap-1.5 px-1 text-center text-[10.5px] text-muted-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-lime" aria-hidden />
+          {t(lang, "browserOnly")} · {t(lang, "disclaimer")}
         </p>
       </div>
 
@@ -440,6 +426,6 @@ export function ChatPanel() {
         onClose={() => setShowGithub(false)}
         onImported={(summary) => store.addMessage("assistant", summary)}
       />
-    </div>
+    </section>
   );
 }

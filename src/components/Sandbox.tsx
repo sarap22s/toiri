@@ -39,7 +39,7 @@ export default function Sandbox({
           string: "#a3e635",
         },
         font: {
-          body: '"Inter", sans-serif',
+          body: '"Manrope", "Noto Sans Bengali", sans-serif',
           mono: '"JetBrains Mono", monospace',
           size: "13px",
           lineHeight: "1.6",

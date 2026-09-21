@@ -23,6 +23,8 @@ export const Route = createFileRoute("/")({
           "Describe an app in Bangla or English and watch Toiri build it live in the preview.",
       },
       { property: "og:url", content: "https://assemble-smiles-co.lovable.app/" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://assemble-smiles-co.lovable.app/" }],
   }),
@@ -85,6 +87,14 @@ function Index() {
     document.body.style.userSelect = "none";
   }, []);
 
+  const resizeWithKeyboard = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    setLeftWidth((current) =>
+      Math.min(70, Math.max(28, current + (event.key === "ArrowRight" ? 2 : -2))),
+    );
+  };
+
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return;
@@ -106,12 +116,12 @@ function Index() {
   }, []);
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden">
+    <div className="relative h-dvh min-h-0 w-screen overflow-hidden bg-ink-950">
       <div className="app-bg" />
       <PricingModal />
       {payment && (
         <div
-          className={`fixed left-1/2 top-4 z-[60] -translate-x-1/2 rounded-xl border px-4 py-2.5 text-[12.5px] font-medium backdrop-blur ${
+          className={`fixed left-3 right-3 top-3 z-[60] rounded-lg border px-4 py-2.5 text-center text-[12.5px] font-medium shadow-xl backdrop-blur sm:left-1/2 sm:right-auto sm:max-w-md sm:-translate-x-1/2 ${
             payment === "success"
               ? "border-lime/40 bg-lime/10 text-lime"
               : "border-red-500/30 bg-red-500/10 text-red-300"
@@ -128,7 +138,7 @@ function Index() {
       <div className="relative z-10 flex h-full flex-col">
         <Header />
         {isStacked && (
-          <div className="mx-3 mb-2 flex items-center gap-1 rounded-xl border border-border bg-ink-800/70 p-1">
+          <div className="mx-3 my-2 flex shrink-0 items-center gap-1 rounded-lg border border-border bg-ink-900 p-1 shadow-lg">
             <TabBtn
               active={mobileTab === "chat"}
               onClick={() => setMobileTab("chat")}
@@ -165,8 +175,14 @@ function Index() {
             <div
               className="resizer my-1"
               onMouseDown={onMouseDown}
+              onKeyDown={resizeWithKeyboard}
               role="separator"
               aria-label="Resize panels"
+              aria-orientation="vertical"
+              aria-valuemin={28}
+              aria-valuemax={70}
+              aria-valuenow={Math.round(leftWidth)}
+              tabIndex={0}
             />
           )}
 
@@ -180,7 +196,7 @@ function Index() {
                 : "min-w-[360px]"
             }`}
           >
-            <PreviewPanel />
+            {(!isStacked || mobileTab === "preview") && <PreviewPanel />}
           </div>
         </div>
       </div>
@@ -203,7 +219,7 @@ function TabBtn({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`press flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-[12.5px] font-semibold ${
+      className={`press flex min-h-9 flex-1 items-center justify-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] font-semibold ${
         active
           ? "bg-primary text-primary-foreground shadow-sm"
           : "text-muted-foreground hover:text-foreground"
