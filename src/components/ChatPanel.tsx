@@ -40,6 +40,7 @@ export function ChatPanel() {
   const isLoading = useStore((s) => s.isLoading);
   const lang = useStore((s) => s.lang);
   const credits = useStore((s) => s.credits);
+  const storageError = useStore((s) => s.storageError);
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
   const [canRetry, setCanRetry] = useState(false);
@@ -267,7 +268,7 @@ export function ChatPanel() {
         )}
       </div>
 
-      {useStore((s) => s.storageError) && (
+      {storageError && (
         <div role="alert" className="mx-3 mt-3 rounded-md border border-destructive/35 bg-destructive/10 px-3 py-2 text-[11.5px] text-destructive-foreground">
           {t(lang, "storageError")}
         </div>

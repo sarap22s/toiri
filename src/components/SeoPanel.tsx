@@ -17,7 +17,7 @@ export function SeoPanel({ onFix }: { onFix?: (prompt: string) => void }) {
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="flex items-center gap-4">
         <div
-          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-border bg-ink-800/60 font-display text-[22px] font-bold tabular-nums ${tone}`}
+          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-border bg-ink-800/60 font-display text-[22px] font-bold tabular-nums ${tone}`}
         >
           {report.score}
         </div>
@@ -48,7 +48,7 @@ export function SeoPanel({ onFix }: { onFix?: (prompt: string) => void }) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.18, delay: i * 0.02 }}
-            className="flex gap-2.5 rounded-xl border border-border bg-ink-800/40 px-3 py-2.5"
+           className="flex gap-2.5 rounded-lg border border-border bg-ink-800/40 px-3 py-2.5"
           >
             <span className="mt-0.5 shrink-0">
               {c.status === "pass" ? (

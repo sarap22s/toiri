@@ -87,6 +87,12 @@ function Index() {
     document.body.style.userSelect = "none";
   }, []);
 
+  const resizeWithKeyboard = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+    event.preventDefault();
+    setLeftWidth((current) => Math.min(70, Math.max(28, current + (event.key === "ArrowRight" ? 2 : -2))));
+  };
+
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       if (!dragging.current || !containerRef.current) return;
@@ -167,8 +173,14 @@ function Index() {
             <div
               className="resizer my-1"
               onMouseDown={onMouseDown}
+              onKeyDown={resizeWithKeyboard}
               role="separator"
               aria-label="Resize panels"
+              aria-orientation="vertical"
+              aria-valuemin={28}
+              aria-valuemax={70}
+              aria-valuenow={Math.round(leftWidth)}
+              tabIndex={0}
             />
           )}
 
