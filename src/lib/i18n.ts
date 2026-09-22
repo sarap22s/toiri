@@ -65,6 +65,11 @@ export const STRINGS: Record<Lang, Dict> = {
     promptHint:
       "Tap any idea — it sends a full, detailed description, so you don't have to know the steps. You can change anything afterwards by chatting.",
     browserOnly: "Saved in this browser",
+    ideas: "Ideas",
+    ideasTitle: "Ready-made project ideas",
+    buildSummary: "What was built",
+    summaryLines: "lines of code",
+    summaryOpenPreview: "Open the Preview tab to try it.",
     voiceStart: "Speak your idea",
     voiceStop: "Stop recording",
     voiceListening: "Listening… tap to stop",
@@ -165,6 +170,11 @@ export const STRINGS: Record<Lang, Dict> = {
     promptHint:
       "যেকোনো আইডিয়ায় চাপ দিন — পুরো বিস্তারিত বর্ণনা নিজেই চলে যাবে, ধাপগুলো জানার দরকার নেই। পরে চ্যাটে বলে যেকোনো কিছু বদলাতে পারবেন।",
     browserOnly: "এই ব্রাউজারে সেভ করা",
+    ideas: "আইডিয়া",
+    ideasTitle: "তৈরি করা প্রজেক্ট আইডিয়া",
+    buildSummary: "যা বানানো হলো",
+    summaryLines: "লাইন কোড",
+    summaryOpenPreview: "প্রিভিউ ট্যাবে গিয়ে দেখে নিন।",
     voiceStart: "বলে বলুন কী চান",
     voiceStop: "রেকর্ডিং বন্ধ করুন",
     voiceListening: "শুনছি… থামাতে চাপ দিন",
