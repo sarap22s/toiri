@@ -20,6 +20,7 @@ import { MessageBubble } from "./MessageBubble";
 import { PromptGallery } from "./PromptGallery";
 import { GithubImportDialog } from "./GithubImportDialog";
 import { ChatHistoryPanel } from "./ChatHistoryPanel";
+import { summarizeBuild, type BuildSummary } from "@/lib/build-summary";
 
 import {
   Conversation,
@@ -51,6 +52,8 @@ export function ChatPanel() {
   const storageError = useStore((s) => s.storageError);
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
+  const [summaries, setSummaries] = useState<Record<string, BuildSummary>>({});
+  const [showIdeas, setShowIdeas] = useState(false);
   const [canRetry, setCanRetry] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showGithub, setShowGithub] = useState(false);
