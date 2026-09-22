@@ -286,12 +286,17 @@ export function ChatPanel() {
 
       if (fileWrites.length) {
         let label = "";
+        let summary: BuildSummary | null = null;
         for (const fw of fileWrites) {
           store.writeFile(fw.path, fw.content, prompt);
           label = fw.path;
+          summary = summarizeBuild(fw.path, fw.content);
         }
         const id = bubbleId;
-        if (id) setLastFile((prev) => ({ ...prev, [id]: label }));
+        if (id) {
+          setLastFile((prev) => ({ ...prev, [id]: label }));
+          if (summary) setSummaries((prev) => ({ ...prev, [id]: summary }));
+        }
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -396,7 +401,12 @@ export function ChatPanel() {
         ) : (
           <AnimatePresence initial={false}>
             {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} fileLabel={lastFile[m.id]} />
+              <MessageBubble
+                key={m.id}
+                message={m}
+                fileLabel={lastFile[m.id]}
+                summary={summaries[m.id]}
+              />
             ))}
           </AnimatePresence>
         )}
