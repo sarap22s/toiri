@@ -354,6 +354,7 @@ export function ChatPanel() {
               onClick={() => {
                 store.newChat();
                 setLastFile({});
+                setSummaries({});
               }}
               className="press flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             >
@@ -492,6 +493,15 @@ export function ChatPanel() {
           />
           <PromptInputFooter className="px-2 pb-2 pt-0">
             <PromptInputTools>
+          <PromptInputButton
+            onClick={() => setShowIdeas((v) => !v)}
+            aria-pressed={showIdeas}
+            tooltip={t(lang, "ideasTitle")}
+            className="press text-muted-foreground hover:text-foreground"
+          >
+            <Lightbulb size={14} />
+            <span className="text-[11px]">{t(lang, "ideas")}</span>
+          </PromptInputButton>
           <PromptInputButton
             onClick={() => fileRef.current?.click()}
             tooltip={t(lang, "attach")}
