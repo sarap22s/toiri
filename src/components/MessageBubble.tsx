@@ -8,13 +8,17 @@ import {
   MessageContent,
   MessageResponse,
 } from "@/components/ai-elements/message";
+import { BuildSummaryCard } from "./BuildSummaryCard";
+import type { BuildSummary } from "@/lib/build-summary";
 
 export function MessageBubble({
   message,
   fileLabel,
+  summary,
 }: {
   message: ChatMessage;
   fileLabel?: string | undefined;
+  summary?: BuildSummary | undefined;
 }) {
   const isUser = message.role === "user";
   const lang = useStore((s) => s.lang);
