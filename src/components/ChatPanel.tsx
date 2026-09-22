@@ -446,6 +446,25 @@ export function ChatPanel() {
       </Conversation>
 
       <div className="safe-bottom shrink-0 border-t border-border bg-ink-950/60 p-3">
+        <AnimatePresence initial={false}>
+          {showIdeas && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-3 overflow-hidden"
+            >
+              <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-ink-800/40 p-3">
+                <PromptGallery
+                  onPick={(p) => {
+                    setShowIdeas(false);
+                    void send(p);
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {attachments.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1.5">
             {attachments.map((a, i) => (
