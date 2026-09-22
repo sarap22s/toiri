@@ -90,7 +90,13 @@ export function ChatPanel() {
         if (!text) {
           setVoiceError(t(lang, "voiceEmpty"));
         } else {
-          setInput((prev) => (prev.trim() ? `${prev.trim()} ${text}` : text));
+          // A spoken idea should build the app, not just fill the box.
+          const typed = input.trim();
+          const prompt = typed ? `${typed} ${text}` : text;
+          setInput("");
+          setVoiceState("idle");
+          void send(prompt);
+          return;
         }
       } catch (err) {
         setVoiceError(err instanceof Error ? err.message : t(lang, "voiceFailed"));
