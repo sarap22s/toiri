@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   GitBranch,
+  Lightbulb,
   Loader2,
   Mic,
   MessagesSquare,
@@ -20,6 +21,7 @@ import { MessageBubble } from "./MessageBubble";
 import { PromptGallery } from "./PromptGallery";
 import { GithubImportDialog } from "./GithubImportDialog";
 import { ChatHistoryPanel } from "./ChatHistoryPanel";
+import { summarizeBuild, type BuildSummary } from "@/lib/build-summary";
 
 import {
   Conversation,
@@ -51,6 +53,8 @@ export function ChatPanel() {
   const storageError = useStore((s) => s.storageError);
   const [input, setInput] = useState("");
   const [lastFile, setLastFile] = useState<Record<string, string>>({});
+  const [summaries, setSummaries] = useState<Record<string, BuildSummary>>({});
+  const [showIdeas, setShowIdeas] = useState(false);
   const [canRetry, setCanRetry] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showGithub, setShowGithub] = useState(false);
@@ -283,12 +287,18 @@ export function ChatPanel() {
 
       if (fileWrites.length) {
         let label = "";
+        let summary: BuildSummary | null = null;
         for (const fw of fileWrites) {
           store.writeFile(fw.path, fw.content, prompt);
           label = fw.path;
+          summary = summarizeBuild(fw.path, fw.content);
         }
         const id = bubbleId;
-        if (id) setLastFile((prev) => ({ ...prev, [id]: label }));
+        if (id) {
+          setLastFile((prev) => ({ ...prev, [id]: label }));
+          const s = summary;
+          if (s) setSummaries((prev) => ({ ...prev, [id]: s }));
+        }
       }
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -345,6 +355,7 @@ export function ChatPanel() {
               onClick={() => {
                 store.newChat();
                 setLastFile({});
+                setSummaries({});
               }}
               className="press flex items-center gap-1 rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-foreground/5 hover:text-foreground"
             >
@@ -393,7 +404,12 @@ export function ChatPanel() {
         ) : (
           <AnimatePresence initial={false}>
             {messages.map((m) => (
-              <MessageBubble key={m.id} message={m} fileLabel={lastFile[m.id]} />
+              <MessageBubble
+                key={m.id}
+                message={m}
+                fileLabel={lastFile[m.id]}
+                summary={summaries[m.id]}
+              />
             ))}
           </AnimatePresence>
         )}
@@ -430,6 +446,25 @@ export function ChatPanel() {
       </Conversation>
 
       <div className="safe-bottom shrink-0 border-t border-border bg-ink-950/60 p-3">
+        <AnimatePresence initial={false}>
+          {showIdeas && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-3 overflow-hidden"
+            >
+              <div className="max-h-72 overflow-y-auto rounded-lg border border-border bg-ink-800/40 p-3">
+                <PromptGallery
+                  onPick={(p) => {
+                    setShowIdeas(false);
+                    void send(p);
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {attachments.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-1.5">
             {attachments.map((a, i) => (
@@ -478,6 +513,15 @@ export function ChatPanel() {
           />
           <PromptInputFooter className="px-2 pb-2 pt-0">
             <PromptInputTools>
+          <PromptInputButton
+            onClick={() => setShowIdeas((v) => !v)}
+            aria-pressed={showIdeas}
+            tooltip={t(lang, "ideasTitle")}
+            className="press text-muted-foreground hover:text-foreground"
+          >
+            <Lightbulb size={14} />
+            <span className="text-[11px]">{t(lang, "ideas")}</span>
+          </PromptInputButton>
           <PromptInputButton
             onClick={() => fileRef.current?.click()}
             tooltip={t(lang, "attach")}
