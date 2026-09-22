@@ -50,11 +50,15 @@ export function MessageBubble({
           )}
         </MessageContent>
         <span className="sr-only">{isUser ? t(lang, "you") : "Toiri"}</span>
-        {fileLabel && (
-          <div className="flex items-center gap-1.5 rounded-lg border border-lime/20 bg-lime/[0.06] px-2.5 py-1 text-[11px] font-medium text-lime">
-            <FileCode2 size={12} />
-            {t(lang, "updatedFile")} {fileLabel}
-          </div>
+        {summary ? (
+          <BuildSummaryCard summary={summary} />
+        ) : (
+          fileLabel && (
+            <div className="flex items-center gap-1.5 rounded-lg border border-lime/20 bg-lime/[0.06] px-2.5 py-1 text-[11px] font-medium text-lime">
+              <FileCode2 size={12} />
+              {t(lang, "updatedFile")} {fileLabel}
+            </div>
+          )
         )}
       </Message>
     </motion.div>
