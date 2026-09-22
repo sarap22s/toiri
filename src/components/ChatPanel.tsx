@@ -295,7 +295,8 @@ export function ChatPanel() {
         const id = bubbleId;
         if (id) {
           setLastFile((prev) => ({ ...prev, [id]: label }));
-          if (summary) setSummaries((prev) => ({ ...prev, [id]: summary }));
+          const s = summary;
+          if (s) setSummaries((prev) => ({ ...prev, [id]: s }));
         }
       }
     } catch (err) {
